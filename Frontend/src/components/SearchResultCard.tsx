@@ -1,17 +1,11 @@
 import { Button, Card, CardBody, CardFooter, Heading, Image, Text } from '@chakra-ui/react'
 import { Divider, Stack } from '@mui/material'
 
-type SearchResultCardProps = {
-  id: number,
-  searchWord: string,
-  imageURL: string,
-}
-
-const SearchResultCard = ({ id, searchWord, imageURL }: SearchResultCardProps) => {
+const SearchResultCard = ({ id, searchWord, imageURL }: SearchResult) => {
   return (
     <>
-      <Card>
-        <CardBody >
+      <Card mb={"3"}>
+        <CardBody>
           <Image
             src={imageURL}
             alt={`${searchWord} + ${id}`}

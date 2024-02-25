@@ -1,12 +1,16 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 import axios from 'axios'
 import React from 'react'
+import { useSearchResultState } from '../store/SearchResultStore'
 
 const SearchBar = () => {
+  const setResultState = useSearchResultState((state) =>
+    state.setSearchResultState,
+  )
   const handleSearch = async () => {
     const { data } = await axios.get("/api/search")
-    /* add logging.*/
-    console.log(data)
+    /* data must be formed as SearchResultState in typings.d.ts. */
+    setResultState(data)
   }
   return (
     <>
