@@ -1,9 +1,11 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid'
+import axios from 'axios'
 import React from 'react'
 
 const SearchBar = () => {
   const handleSearch = () => {
-
+    const { data } = axios.get("/api/search")
+    console.log(data)
   }
   return (
     <>
