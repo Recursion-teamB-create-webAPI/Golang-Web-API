@@ -2,6 +2,7 @@ import { Avatar } from '@mui/material'
 import React from 'react'
 import Logout from './Logout'
 import { pink } from '@mui/material/colors'
+import SearchBar from './SearchBar'
 
 const Header = () => {
   return (
@@ -25,6 +26,7 @@ const Header = () => {
             <Logout />
           </div>
         </div>
+        <SearchBar />
       </header>
     </>
   )
