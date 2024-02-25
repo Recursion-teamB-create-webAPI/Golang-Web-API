@@ -3,8 +3,9 @@ import axios from 'axios'
 import React from 'react'
 
 const SearchBar = () => {
-  const handleSearch = () => {
-    const { data } = axios.get("/api/search")
+  const handleSearch = async () => {
+    const { data } = await axios.get("/api/search")
+    /* add logging.*/
     console.log(data)
   }
   return (
