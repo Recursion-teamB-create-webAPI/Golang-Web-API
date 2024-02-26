@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
+	"path/filepath"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2/google"
@@ -15,62 +15,54 @@ import (
 	"google.golang.org/api/option"
 )
 
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	// クエリパラメータを解析する
-	query := r.URL.Query()
-	name := query.Get("name") // "名前"から"name"へ修正
-
-	// レスポンス用のマップを作成
-	response := map[string]string{
-		"message": "Hello " + name, // “message”： "Hello " + name、から修正
-	}
-
-	// Content-Typeヘッダーをapplication/jsonに設定
-	w.Header().Set("Content-Type", "application/json")
-
-	// マップをJSONにエンコードしてレスポンスとして送信
-	json.NewEncoder(w).Encode(response)
+type Env struct {
+	searchEngineId string
+	csePath        string
+	portNumber     string
 }
 
-func searchHandler(w http.ResponseWriter, r *http.Request) {
+type ResponseImage struct {
+	Images [10]string `json:"images"`
+}
+
+func (env *Env) searchHandler(w http.ResponseWriter, r *http.Request) {
 	// クエリパラメータを解析する
 	query := r.URL.Query()
 	keyword := query.Get("keyword")
 
-	// レスポンス用のマップを作成
-	response := map[string]string{}
-
 	jsonData, err := os.ReadFile("search-key.json")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
-	conf, err := google.JWTConfigFromJSON(jsonData, "https://www.googleapis.com/auth/cse")
+	conf, err := google.JWTConfigFromJSON(jsonData, env.csePath)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	client := conf.Client(context.Background())
 	cseService, err := customsearch.NewService(context.Background(), option.WithHTTPClient(client))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	// 検索ワードの設定
 	search := cseService.Cse.List().Q(keyword)
 
 	// 検索エンジンIDを設定
-	search.Cx(getEnvData())
+	search.Cx(env.searchEngineId)
 	// Custom Search Engineで「画像検索」をオンにする
 	search.SearchType("image")
 
 	search.Start(1)
 	call, err := search.Do()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
+	var response ResponseImage
+
 	for index, r := range call.Items {
-		response[strconv.Itoa(index+1)] = r.Link
+		response.Images[index] = r.Link
 	}
 
 	// Content-Typeヘッダーをapplication/jsonに設定
@@ -80,28 +72,39 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func getEnvData() string {
+func getEnvData() Env {
 	// envファイルのパスを渡す
-	err := godotenv.Load("../.env")
+	path := strings.Replace(getAbsolutePath(".env"), "Backend", "Env", -1)
+	err := godotenv.Load(path)
 	if err != nil {
-		panic("Error loading .env file")
+		log.Println("Error loading .env file")
 	}
 
 	// .envから値を取得する
-	searchEnginId := os.Getenv("SEARCH_ENGINE_ID")
+	return Env{
+		searchEngineId: os.Getenv("SEARCH_ENGINE_ID"),
+		csePath:        os.Getenv("CSE_PATH"),
+		portNumber:     os.Getenv("PORT_NUMBER"),
+	}
+}
 
-	return searchEnginId
+func getAbsolutePath(path string) string {
+	curentDir, err := os.Getwd()
+	if err != nil {
+		log.Println(err)
+	}
+	return filepath.Join(curentDir, path)
 }
 
 func main() {
-	fmt.Println("Starting the server!")
+	// .envから値を取得する
+	env := getEnvData()
 
-	// ルートとハンドラ関数を定義
-	http.HandleFunc("/api/hello", helloHandler)
+	log.Println("Starting the server!")
 
 	// 検索用エンドポイントにアクセスされたら呼び出す
-	http.HandleFunc("/api/search", searchHandler)
+	http.Handle("/api/search", http.HandlerFunc(env.searchHandler))
 
 	// 8000番ポートでサーバを開始
-	http.ListenAndServe(":8000", nil)
+	http.ListenAndServe(env.portNumber, nil)
 }
