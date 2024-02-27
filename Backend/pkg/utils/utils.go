@@ -5,25 +5,15 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/constants"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/structs"
 	"github.com/joho/godotenv"
 )
 
 func GetEnvData() structs.Env {
-	// カレントディレクトリを示す絶対パスを取得する
-	currDir, err := os.Getwd()
-	if err != nil {
-		log.Println("Error getting current directory:", err)
-	}
-
-	// constants.RootDirLevel前の階層のパスを取得する
-	rootPath := GetbeforeDirPath(currDir, constants.RootDirLevel)
-	// .envのパスを再帰で探す
-	targetPath := GetWalkTargetPath(rootPath, ".env")
+	envPath := GetWalkTargetPath(".env")
 
 	// envファイルのパスを渡す
-	err = godotenv.Load(targetPath)
+	err := godotenv.Load(envPath)
 	if err != nil {
 		log.Println("Error loading .env file")
 	}
@@ -36,18 +26,18 @@ func GetEnvData() structs.Env {
 	}
 }
 
-func GetbeforeDirPath(path string, beforeLevel int) string {
-
-	for i := 0; i < beforeLevel; i++ {
-		path = filepath.Dir(path)
+func GetWalkTargetPath(targetFile string) string {
+	// カレントディレクトリを示す絶対パスを取得する
+	currDir, err := os.Getwd()
+	if err != nil {
+		log.Println("Error getting current directory:", err)
 	}
-	return path
-}
 
-func GetWalkTargetPath(startPath string, targetFile string) string {
+	// カレントディレクトリの1階層前のパスを取得する
+	rootPath := filepath.Dir(currDir)
 	targetPath := ""
 
-	err := filepath.Walk(startPath, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
