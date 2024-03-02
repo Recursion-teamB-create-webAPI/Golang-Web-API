@@ -68,7 +68,7 @@ func SearchHandler(env structs.Env, mydb *dao.Database) http.HandlerFunc {
 				}
 
 				now := time.Now()
-				mydb.Insert(keyword, response.ImageData.Images, 1, now, now)
+				mydb.Insert(keyword, response.ImageData.Images, constants.SearchInitCount, now, now)
 			}
 			response.Status = "success"
 		}

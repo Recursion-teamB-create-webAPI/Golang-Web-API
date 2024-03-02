@@ -25,7 +25,7 @@ type ResponseImage struct {
 }
 
 type InitImageItems struct {
-	ImageItems []Items `json:"items"`
+	ImageItems []Items `json:"imageItems"`
 }
 
 type Items struct {

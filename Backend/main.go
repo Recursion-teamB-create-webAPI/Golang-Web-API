@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/constants"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/dao"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/handlers"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/utils"
@@ -16,7 +17,7 @@ func main() {
 	env := utils.GetEnvData()
 
 	// MongoDBサーバーへのタイムアウト設定
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), constants.TimeOutSecond*time.Second)
 	defer cancel()
 
 	// MongoDBサーバーへの接続
