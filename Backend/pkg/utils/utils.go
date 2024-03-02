@@ -20,9 +20,12 @@ func GetEnvData() structs.Env {
 
 	// .envから値を取得する
 	return structs.Env{
-		SearchEngineId: os.Getenv("SEARCH_ENGINE_ID"),
-		CsePath:        os.Getenv("CSE_PATH"),
-		PortNumber:     os.Getenv("PORT_NUMBER"),
+		SearchEngineId:  os.Getenv("SEARCH_ENGINE_ID"),
+		CsePath:         os.Getenv("CSE_PATH"),
+		PortNumber:      os.Getenv("PORT_NUMBER"),
+		MongoUri:        os.Getenv("MONGODB_URI"),
+		MongoDatabase:   os.Getenv("MONGODB_DATABASE"),
+		MongoCollection: os.Getenv("MONGODB_COLLECTION"),
 	}
 }
 
