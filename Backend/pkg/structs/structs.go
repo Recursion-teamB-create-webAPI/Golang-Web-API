@@ -34,7 +34,7 @@ type Items struct {
 }
 
 type DatabaseImage struct {
-	Id          int       `bson:"id"`
+	Id          string    `bson:"_id"`
 	Item        string    `bson:"item"`
 	Images      []string  `bson:"images"`
 	SearchCount int       `bson:"search_count"`
