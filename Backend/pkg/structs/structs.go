@@ -19,13 +19,13 @@ type ImageArray struct {
 	Images [constants.SearchResultNumber]string `json:"images"`
 }
 
-type ResponseImage struct {
+type ResponseSearch struct {
 	ImageData ImageArray `json:"imageData"`
 	Status    string     `json:"status"`
 }
 
 type InitImageItems struct {
-	ImageItems []Items `json:"imageItems"`
+	ImageItems []Items `json:"items"`
 }
 
 type Items struct {

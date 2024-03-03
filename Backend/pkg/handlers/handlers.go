@@ -18,7 +18,7 @@ import (
 
 func SearchHandler(env structs.Env, mydb *dao.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var response structs.ResponseImage
+		var response structs.ResponseSearch
 		// クエリパラメータを解析する
 		query := r.URL.Query()
 		keyword := query.Get("keyword")
