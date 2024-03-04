@@ -21,8 +21,12 @@ func GetEnvData() structs.Env {
 	// .envから値を取得する
 	return structs.Env{
 		SearchEngineId: os.Getenv("SEARCH_ENGINE_ID"),
+		KeyFileName:    os.Getenv("KEY_FILE_NAME"),
 		CsePath:        os.Getenv("CSE_PATH"),
 		PortNumber:     os.Getenv("PORT_NUMBER"),
+		DatabaseName:   os.Getenv("DATABASE_NAME"),
+		TableName:      os.Getenv("TABELE_NAME"),
+		MysqlUri:       os.Getenv("MYSQL_URI"),
 	}
 }
 
