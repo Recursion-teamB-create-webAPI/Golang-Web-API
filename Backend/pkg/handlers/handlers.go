@@ -23,15 +23,18 @@ func SearchHandler(env structs.Env, mydb *dao.Database) http.HandlerFunc {
 		keyword := query.Get("keyword")
 
 		if keyword == "" {
-			log.Println("Data could not be retrieved because query parameters were not set")
+			errMessage := "Data could not be retrieved because query parameters were not set"
+
+			log.Println(errMessage)
 			response.Status = "failed"
+			response.Cause = errMessage
 		} else {
 			var img structs.DatabaseImage
 			success, img := mydb.Find(env, img, keyword)
 			// keywordがデータベースに存在するかチェックする
 			if success {
 				mydb.Update(env, keyword)
-				log.Println(img.Images[0])
+
 				response.ImageData.Images = img.Images
 				response.Status = "success"
 			} else {
@@ -61,8 +64,11 @@ func SearchHandler(env structs.Env, mydb *dao.Database) http.HandlerFunc {
 				search.Start(1)
 				call, err := search.Do()
 				if err != nil {
+					errMessage := "The image could not be retrieved because the daily usage limit for the Google Custom Search API has been reached."
+
 					log.Println(err)
 					response.Status = "failed"
+					response.Cause = errMessage
 				} else {
 					for index, r := range call.Items {
 						response.ImageData.Images[index] = r.Link
@@ -88,8 +94,11 @@ func DescriptionHandler(env structs.Env, mydb *dao.Database) http.HandlerFunc {
 		keyword := query.Get("keyword")
 
 		if keyword == "" {
-			log.Println("Data could not be retrieved because query parameters were not set")
+			errMessage := "Data could not be retrieved because query parameters were not set"
+
+			log.Println(errMessage)
 			response.Status = "failed"
+			response.Cause = errMessage
 		} else {
 			var img structs.DatabaseImage
 			success, img := mydb.Find(env, img, keyword)
@@ -98,7 +107,10 @@ func DescriptionHandler(env structs.Env, mydb *dao.Database) http.HandlerFunc {
 				response.Description = img
 				response.Status = "success"
 			} else {
+				errMessage := "Keyword data could not be displayed because it does not exist in the database"
+
 				response.Status = "failed"
+				response.Cause = errMessage
 			}
 		}
 		// Content-Typeヘッダーをapplication/jsonに設定

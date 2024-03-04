@@ -21,11 +21,13 @@ type ImageArray struct {
 type ResponseSearch struct {
 	ImageData ImageArray `json:"imageData"`
 	Status    string     `json:"status"`
+	Cause     string     `json:"cause"`
 }
 
 type ResponseDescription struct {
 	Description DatabaseImage `json:"description"`
 	Status      string        `json:"status"`
+	Cause       string        `json:"cause"`
 }
 
 type InitImageItems struct {

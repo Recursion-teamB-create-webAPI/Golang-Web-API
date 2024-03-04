@@ -74,7 +74,7 @@ func (db *Database) Find(env structs.Env, img structs.DatabaseImage, item string
 	query := fmt.Sprintf(`SELECT * FROM %s WHERE item = ?;`, env.TableName)
 	res, err := db.UseDb.Query(query, string(item))
 	if err != nil {
-		return false, img
+		log.Println(err)
 	}
 
 	var imagesJSON string
@@ -86,7 +86,7 @@ func (db *Database) Find(env structs.Env, img structs.DatabaseImage, item string
 	json.Unmarshal([]byte(imagesJSON), &img.Images)
 
 	if err != nil {
-		return false, img
+		log.Println(err)
 	}
 	return item == img.Item, img
 }
