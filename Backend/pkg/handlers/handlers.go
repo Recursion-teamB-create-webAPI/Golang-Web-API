@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -15,13 +16,19 @@ import (
 
 func SearchHandler(env structs.Env) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// クエリパラメータを解析する
+
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173") // 許可するオリジンを指定
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")   // 許可するHTTPメソッドを指定
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")         // 許可するリクエストヘッダーを指定
+
+		fmt.Println("Search Handler")
+
 		query := r.URL.Query()
 		keyword := query.Get("keyword")
-
+		fmt.Println("keyword>>", keyword)
 		jsonData, err := os.ReadFile("search-key.json")
 		if err != nil {
-			log.Println(err)
+			log.Println(err.Error)
 		}
 
 		conf, err := google.JWTConfigFromJSON(jsonData, env.CsePath)
@@ -32,7 +39,7 @@ func SearchHandler(env structs.Env) http.HandlerFunc {
 		client := conf.Client(context.Background())
 		cseService, err := customsearch.NewService(context.Background(), option.WithHTTPClient(client))
 		if err != nil {
-			log.Println(err)
+			return
 		}
 		// 検索ワードの設定
 		search := cseService.Cse.List().Q(keyword)

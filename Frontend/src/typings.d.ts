@@ -1,5 +1,7 @@
 type SearchResult = {
-  id: number,
-  searchWord: string,
   imageURL: string,
+}
+
+type SearchParams = {
+  keyword: string,
 }

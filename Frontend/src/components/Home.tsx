@@ -1,26 +1,29 @@
+import { useSearchResultState } from '../store/SearchResultStore'
 import SearchResultCard from './SearchResultCard'
 
 const Home = () => {
-  const searchResults: SearchResult[] = useSearchResultState((state) =>
-    state.searchResults
-  )
+
+  const searchResults = useSearchResultState((state) => state.searchResults)
+
   return (
     <>
       {/* This should be user name. After implementeing of auth, change this. */}
-      <h1>Hello User</h1>
+      <h1 className='mt-3'>
+        Hello TlexCypher
+      </h1>
       {searchResults ? (
-        <p>検索結果はこちら!</p>
+        <p className='mt-3 mx-auto font-bold text-xl'>検索結果</p>
       ) : (
-        <p>検索結果なし</p>
+        <p className='mt-3 mx-auto font-bold text-xl'>検索結果なし</p>
       )}
-      <div className='flex items-center justify-center'>
-        {searchResults && searchResults.map(({ id, searchWord, imageURL }) =>
+      <div className='mx-auto'>
+        {searchResults && searchResults.map((imageURL) =>
           <SearchResultCard
-            id={id}
-            searchWord={searchWord}
             imageURL={imageURL}
           />
         )}
+        {/* This should be vanished. */}
+        {searchResults && console.log("search results>>", searchResults)}
       </div>
     </>
   )
