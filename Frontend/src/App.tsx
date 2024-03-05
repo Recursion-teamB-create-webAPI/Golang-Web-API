@@ -1,13 +1,13 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
-import Home from "./components/Home"
-import Layout from "./components/Layout"
-import axios from "axios"
-import SignIn from "./components/SignIn"
-import SignUp from "./components/SignUp"
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Home from "./components/Home";
+import Layout from "./components/Layout";
+import axios from "axios";
+import SignIn from "./components/SignIn";
+import SignUp from "./components/SignUp";
+import Description from "./components/Description";
 
 function App() {
-
-  axios.defaults.baseURL = "http://localhost:8000"
+  axios.defaults.baseURL = "http://localhost:8000";
 
   return (
     <>
@@ -15,13 +15,14 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/description/:imageURL" element={<Description />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
           </Routes>
         </Layout>
       </BrowserRouter>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
