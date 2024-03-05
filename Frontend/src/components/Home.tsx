@@ -1,32 +1,32 @@
-import { useSearchResultState } from '../store/SearchResultStore'
-import SearchResultCard from './SearchResultCard'
+import { useSearchResultState } from "../store/SearchResultStore";
+import SearchBar from "./SearchBar";
+import SearchResultCard from "./SearchResultCard";
 
 const Home = () => {
-
-  const searchResults = useSearchResultState((state) => state.searchResults)
+  const searchResults = useSearchResultState((state) => state.searchResults);
 
   return (
     <>
-      {/* This should be user name. After implementeing of auth, change this. */}
-      <h1 className='mt-3'>
-        Hello TlexCypher
-      </h1>
-      {searchResults ? (
-        <p className='mt-3 mx-auto font-bold text-xl'>検索結果</p>
+      <SearchBar />
+      {searchResults.length > 0 ? (
+        <p className="mt-3 mx-auto font-bold text-xl text-blue-500">
+          検索結果一覧
+        </p>
       ) : (
-        <p className='mt-3 mx-auto font-bold text-xl'>検索結果なし</p>
+        <p className="mt-3 mx-auto font-bold text-xl text-blue-500">
+          検索結果なし
+        </p>
       )}
-      <div className='mx-auto'>
-        {searchResults && searchResults.map((imageURL) =>
+      <div className="mx-auto">
+        {searchResults.length > 0 && (
           <SearchResultCard
-            imageURL={imageURL}
+            imageURL={searchResults[0]}
+            totalResults={searchResults}
           />
         )}
-        {/* This should be vanished. */}
-        {searchResults && console.log("search results>>", searchResults)}
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
