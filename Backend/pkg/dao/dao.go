@@ -3,13 +3,11 @@ package dao
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
-	"io"
 	"log"
-	"os"
 
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/constants"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/structs"
+	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/utils"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -25,17 +23,17 @@ func (db *Database) Connect(env structs.Env) {
 	db.UseDb = database
 }
 
-func (db *Database) CreateTable(env structs.Env) {
+func (db *Database) CreateTable() {
 
-	createTableSQL := fmt.Sprintf(`
-    CREATE TABLE IF NOT EXISTS %s (
+	createTableSQL := `
+    CREATE TABLE IF NOT EXISTS Images (
         id INT AUTO_INCREMENT PRIMARY KEY,
         item VARCHAR(255) NOT NULL,
         images JSON,
         search_count INT DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-    );`, env.TableName)
+    );`
 
 	_, err := db.UseDb.Exec(createTableSQL)
 	if err != nil {
@@ -43,35 +41,24 @@ func (db *Database) CreateTable(env structs.Env) {
 	}
 }
 
-func (db *Database) InsertInitData(env structs.Env) {
-	// JSONファイルを開き読み込む
-	jsonFile, err := os.Open("initImages.json")
-	if err != nil {
-		log.Println("Cannot open JSON file", err)
-	}
-	defer jsonFile.Close()
-	jsonData, err := io.ReadAll(jsonFile)
-	if err != nil {
-		log.Println("Cannot read JSON data", err)
-	}
+func (db *Database) InsertInitData(beforeLevel int) {
 
-	var initImi structs.InitImageItems
+	initImi := utils.GetInitImagesJson(beforeLevel)
 
-	json.Unmarshal(jsonData, &initImi)
+	if initImi != nil {
+		for i := 0; i < constants.ItemCount; i++ {
+			var img structs.DatabaseImage
 
-	// データの挿入
-	for i := 0; i < constants.ItemCount; i++ {
-		var img structs.DatabaseImage
-
-		success, _ := db.Find(env, img, initImi.ImageItems[i].Item)
-		if !success {
-			db.Insert(env, initImi.ImageItems[i].Item, initImi.ImageItems[i].ImageData.Images, 0)
+			success, _ := db.Find(img, initImi.ImageItems[i].Item)
+			if !success {
+				db.Insert(initImi.ImageItems[i].Item, initImi.ImageItems[i].ImageData.Images, 0)
+			}
 		}
 	}
 }
 
-func (db *Database) Find(env structs.Env, img structs.DatabaseImage, item string) (bool, structs.DatabaseImage) {
-	query := fmt.Sprintf(`SELECT * FROM %s WHERE item = ?;`, env.TableName)
+func (db *Database) Find(img structs.DatabaseImage, item string) (bool, structs.DatabaseImage) {
+	query := `SELECT * FROM Images WHERE item = ?;`
 	res, err := db.UseDb.Query(query, string(item))
 	if err != nil {
 		log.Println(err)
@@ -91,28 +78,27 @@ func (db *Database) Find(env structs.Env, img structs.DatabaseImage, item string
 	return item == img.Item, img
 }
 
-func (db *Database) Insert(env structs.Env, item string, images [constants.SearchResultNumber]string, searchCount int) {
+func (db *Database) Insert(item string, images [constants.SearchResultNumber]string, searchCount int) {
 	// images配列をJSON文字列にエンコード
 	imagesJSON, err := json.Marshal(images)
 	if err != nil {
 		log.Println(err)
 	}
 
-	query := fmt.Sprintf(`INSERT INTO %s (item, images, search_count) VALUES (?, ?, ?);`, env.TableName)
+	query := `INSERT INTO Images (item, images, search_count) VALUES (?, ?, ?);`
 	ins, err := db.UseDb.Prepare(query)
 	if err != nil {
 		log.Println(err)
 	}
 
-	// imagesJSONをバイトスライスから文字列に変換してExecに渡す
 	_, err = ins.Exec(item, imagesJSON, searchCount)
 	if err != nil {
 		log.Println(err)
 	}
 }
 
-func (db *Database) Update(env structs.Env, itemName string) {
-	query := fmt.Sprintf(`UPDATE %s SET search_count = search_count + 1 WHERE item = ?;`, env.TableName)
+func (db *Database) Update(itemName string) {
+	query := `UPDATE Images SET search_count = search_count + 1 WHERE item = ?;`
 	update, err := db.UseDb.Prepare(query)
 	if err != nil {
 		log.Println(err)

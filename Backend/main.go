@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/constants"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/dao"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/handlers"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/utils"
@@ -12,7 +13,7 @@ import (
 
 func main() {
 	// .envから値を取得する
-	env := utils.GetEnvData()
+	env := utils.GetEnvData(constants.BeforeLevel1)
 
 	// MySQLに接続する
 	mydb := &dao.Database{}
@@ -28,17 +29,17 @@ func main() {
 	}
 
 	// テーブルの作成
-	mydb.CreateTable(env)
+	mydb.CreateTable()
 
 	// 初期データ投入
-	mydb.InsertInitData(env)
+	mydb.InsertInitData(constants.BeforeLevel0)
 
 	log.Println("Starting the server!")
 
 	// 各エンドポイントにアクセスされたら呼び出す
 	http.Handle("/api/search", http.HandlerFunc(handlers.SearchHandler(env, mydb)))
 
-	http.Handle("/api/description", http.HandlerFunc(handlers.DescriptionHandler(env, mydb)))
+	http.Handle("/api/description", http.HandlerFunc(handlers.DescriptionHandler(mydb)))
 
 	// 8000番ポートでサーバを開始
 	http.ListenAndServe(env.PortNumber, nil)

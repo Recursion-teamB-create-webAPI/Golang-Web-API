@@ -10,7 +10,6 @@ type Env struct {
 	CsePath        string
 	PortNumber     string
 	DatabaseName   string
-	TableName      string
 	MysqlUri       string
 }
 
