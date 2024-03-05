@@ -39,10 +39,10 @@ type Items struct {
 }
 
 type DatabaseImage struct {
-	Id          string                               `json:"id"`
-	Item        string                               `json:"item"`
-	Images      [constants.SearchResultNumber]string `json:"images"`
-	SearchCount int                                  `json:"search_count"`
-	CreatedAt   string                               `json:"created_at"`
-	UpdatedAt   string                               `json:"updated_at"`
+	Id          int        `json:"id"`
+	Item        string     `json:"item"`
+	ImageData   ImageArray `json:"imageData"`
+	SearchCount int        `json:"search_count"`
+	CreatedAt   string     `json:"created_at"`
+	UpdatedAt   string     `json:"updated_at"`
 }

@@ -117,6 +117,9 @@ func TestDatabase_InsertInitData(t *testing.T) {
 			initImi := utils.GetInitImagesJson(constants.BeforeLevel3)
 
 			for i := 0; i < constants.ItemCount; i++ {
+				count := 0
+				date := "2024-03-05 12:03:06"
+
 				item := initImi.ImageItems[i].Item
 				images := initImi.ImageItems[i].ImageData.Images
 
@@ -130,7 +133,7 @@ func TestDatabase_InsertInitData(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM Images WHERE item = ?;`)).
 					WithArgs(item).
 					WillReturnRows(sqlmock.NewRows([]string{"id", "item", "images", "search_count", "created_at", "updated_at"}).
-						AddRow(i+1, item, string(imagesJSON), 0, "2024-03-05 12:03:06", "2024-03-05 12:03:06"))
+						AddRow(i+1, item, string(imagesJSON), count, date, date))
 			}
 
 			database := &Database{UseDb: db}
@@ -192,6 +195,10 @@ func TestDatabase_Find(t *testing.T) {
 	t.Run(
 		"Successful Find data",
 		func(t *testing.T) {
+			id := 1
+			count := 0
+			date := "2024-03-05 12:03:06"
+
 			db, mock, err := sqlmock.New()
 			if err != nil {
 				log.Println("failed to init db mock")
@@ -202,7 +209,7 @@ func TestDatabase_Find(t *testing.T) {
 			initImi := utils.GetInitImagesJson(constants.BeforeLevel3)
 
 			item := initImi.ImageItems[0].Item
-			images := initImi.ImageItems[1].ImageData.Images
+			images := initImi.ImageItems[0].ImageData.Images
 
 			// images配列をJSON文字列にエンコード
 			imagesJSON, err := json.Marshal(images)
@@ -213,7 +220,7 @@ func TestDatabase_Find(t *testing.T) {
 			// Execの呼び出しを期待する設定
 			mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM Images WHERE item = ?;`)).
 				WithArgs(item).
-				WillReturnRows(sqlmock.NewRows([]string{"id", "item", "images", "search_count", "created_at", "updated_at"}).AddRow(1, "cat", string(imagesJSON), 0, "2024-03-05 12:03:06", "2024-03-05 12:03:06"))
+				WillReturnRows(sqlmock.NewRows([]string{"id", "item", "images", "search_count", "created_at", "updated_at"}).AddRow(id, item, string(imagesJSON), count, date, date))
 
 			database := &Database{UseDb: db}
 			success, _ := database.Find(img, item)
@@ -295,13 +302,13 @@ func TestDatabase_Insert(t *testing.T) {
 }
 
 func TestDatabase_Update(t *testing.T) {
+	item := "cat"
+
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		log.Println("failed to init db mock")
 	}
 	defer db.Close()
-
-	item := "cat"
 
 	// Prepareの呼び出しを期待する設定
 	prep := mock.ExpectPrepare(regexp.QuoteMeta(`UPDATE Images SET search_count = search_count + 1 WHERE item = ?;`))

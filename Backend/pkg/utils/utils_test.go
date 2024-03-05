@@ -17,7 +17,6 @@ func TestGetEnvData(t *testing.T) {
 		args args
 		want structs.Env
 	}{
-		// TODO: Add test cases.
 		{
 			name: "Successful get env data",
 			args: args{beforeLevel: constants.BeforeLevel3},

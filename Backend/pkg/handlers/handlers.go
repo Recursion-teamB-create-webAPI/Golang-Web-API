@@ -29,7 +29,7 @@ func SearchHandler(env structs.Env, mydb *dao.Database) http.HandlerFunc {
 			if success {
 				mydb.Update(keyword)
 
-				response.ImageData.Images = img.Images
+				response.ImageData.Images = img.ImageData.Images
 				response.Status = "success"
 			} else {
 				call := utils.GetGoogleCustomSearchApiResponse(env, keyword, constants.BeforeLevel0)

@@ -70,7 +70,7 @@ func (db *Database) Find(img structs.DatabaseImage, item string) (bool, structs.
 		res.Scan(&img.Id, &img.Item, &imagesJSON, &img.SearchCount, &img.CreatedAt, &img.UpdatedAt)
 	}
 
-	json.Unmarshal([]byte(imagesJSON), &img.Images)
+	json.Unmarshal([]byte(imagesJSON), &img.ImageData.Images)
 
 	if err != nil {
 		log.Println(err)
