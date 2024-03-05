@@ -106,7 +106,6 @@ func GetWalkTargetPath(targetFile string, beforeLevel int) string {
 	rootPath := currDir
 	targetPath := ""
 
-	// カレントディレクトリの1階層前のパスを取得する
 	for i := 0; i < beforeLevel; i++ {
 		rootPath = filepath.Dir(rootPath)
 	}
