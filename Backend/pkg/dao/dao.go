@@ -20,11 +20,11 @@ func (db *Database) Connect(env structs.Env) {
 	if err != nil {
 		log.Println(err)
 	}
+
 	db.UseDb = database
 }
 
 func (db *Database) CreateTable() {
-
 	createTableSQL := `
     CREATE TABLE IF NOT EXISTS Images (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -42,7 +42,6 @@ func (db *Database) CreateTable() {
 }
 
 func (db *Database) InsertInitData(beforeLevel int) {
-
 	initImi := utils.GetInitImagesJson(beforeLevel)
 
 	if initImi != nil {
@@ -70,8 +69,7 @@ func (db *Database) Find(img structs.DatabaseImage, item string) (bool, structs.
 		res.Scan(&img.Id, &img.Item, &imagesJSON, &img.SearchCount, &img.CreatedAt, &img.UpdatedAt)
 	}
 
-	json.Unmarshal([]byte(imagesJSON), &img.ImageData.Images)
-
+	err = json.Unmarshal([]byte(imagesJSON), &img.ImageData.Images)
 	if err != nil {
 		log.Println(err)
 	}
@@ -100,9 +98,11 @@ func (db *Database) Insert(item string, images [constants.SearchResultNumber]str
 func (db *Database) Update(itemName string) {
 	query := `UPDATE Images SET search_count = search_count + 1 WHERE item = ?;`
 	update, err := db.UseDb.Prepare(query)
+
 	if err != nil {
 		log.Println(err)
 	}
+
 	_, err = update.Exec(itemName)
 	if err != nil {
 		log.Println(err)
