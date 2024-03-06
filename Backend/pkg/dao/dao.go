@@ -19,6 +19,7 @@ func (db *Database) Connect(env structs.Env) {
 	database, err := sql.Open(env.DatabaseName, env.MysqlUri)
 	if err != nil {
 		log.Println(err)
+		return
 	}
 	db.UseDb = database
 }
