@@ -11,6 +11,7 @@ type Env struct {
 	PortNumber     string
 	DatabaseName   string
 	MysqlUri       string
+	JwtSecretKey   string
 }
 
 type ImageArray struct {
@@ -21,6 +22,15 @@ type ResponseSearch struct {
 	ImageData ImageArray `json:"imageData"`
 	Status    string     `json:"status"`
 	Cause     string     `json:"cause"`
+}
+
+type ResponseSignUp struct {
+	Id       int    `json:"id"`
+	Username string `json:"username"`
+}
+
+type ResponseSignIn struct {
+	Username string `json:"username"`
 }
 
 type ResponseDescription struct {

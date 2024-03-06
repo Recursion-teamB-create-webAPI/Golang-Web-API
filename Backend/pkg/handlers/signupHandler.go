@@ -2,12 +2,15 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 
+	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/dao"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/structs"
 )
 
-func SignUpHandler(env structs.Env) http.HandlerFunc {
+func SignUpHandler(env structs.Env, db *dao.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
@@ -31,6 +34,26 @@ func SignUpHandler(env structs.Env) http.HandlerFunc {
 			http.Error(w, "Bad request", http.StatusBadRequest)
 			return
 		}
+		fmt.Printf("Username: %v\n", user.Username)
+		fmt.Printf("Password: %v\n", user.Password)
+
+		err = dao.CreateUsersTable(db.UseDb)
+		if err != nil {
+			log.Println("Failed to create Users table.")
+			http.Error(w, "Failed to create User table.", http.StatusInternalServerError)
+			return
+		}
+
+		err = dao.InsertUser(db.UseDb, user.Username, user.Password)
+		if err != nil {
+			log.Println("Failed to insert user into Users table.")
+			http.Error(w, "Failed to insert user into Users table.", http.StatusInternalServerError)
+			return
+		}
+
+		var resp structs.ResponseSignUp
+		resp.Username = user.Username
+
+		json.NewEncoder(w).Encode(resp)
 	}
 }
-

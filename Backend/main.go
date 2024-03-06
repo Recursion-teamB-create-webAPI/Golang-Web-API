@@ -41,6 +41,10 @@ func main() {
 
 	http.Handle("/api/description", http.HandlerFunc(handlers.DescriptionHandler(mydb)))
 
+	http.Handle("/api/signup", http.HandlerFunc(handlers.SignUpHandler(env, mydb)))
+
+	http.Handle("/api/signin", http.HandlerFunc(handlers.SignInHandler(env, mydb)))
+
 	// 8000番ポートでサーバを開始
 	http.ListenAndServe(env.PortNumber, nil)
 

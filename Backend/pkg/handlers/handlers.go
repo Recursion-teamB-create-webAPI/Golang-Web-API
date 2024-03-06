@@ -13,6 +13,12 @@ import (
 
 func SearchHandler(env structs.Env, mydb *dao.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		w.Header().Set("Access-Control-Allow-Methods", "POST,OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Content-Type", "application/json")
+
 		var response structs.ResponseSearch
 		// クエリパラメータを解析する
 		query := r.URL.Query()

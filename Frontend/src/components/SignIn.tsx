@@ -1,4 +1,30 @@
+import axios from "axios";
+import { ChangeEvent, FormEvent, useState } from "react";
+
 const SignIn = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSignIn = async (e: FormEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    console.log("Username>>", username);
+    console.log("Password>>", password);
+
+    const resp = await axios.post("/api/signin", {
+      username: username,
+      password: password,
+    });
+    console.log("signin response>>", resp);
+  };
+
+  const handleUsername = (e: ChangeEvent<HTMLInputElement>) => {
+    setUsername(e.target.value);
+  };
+
+  const handlePassword = (e: ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
+
   return (
     <div className="flex justify-center mt-20 drop-shadow-xl">
       <form className="bg-white px-10 pb-10 rounded-xl w-80 h-80">
@@ -9,6 +35,7 @@ const SignIn = () => {
             type="text"
             placeholder="sample"
             className="border rounded-md w-full outline-none px-3 h-10"
+            onChange={handleUsername}
           />
         </div>
         <div className="mt-6">
@@ -17,10 +44,14 @@ const SignIn = () => {
             type="password"
             placeholder="password"
             className="border rounded-md w-full outline-none px-3 h-10"
+            onChange={handlePassword}
           />
         </div>
         <div className="flex justify-center items-center mt-4">
-          <button className="bg-blue-400 hover:bg-blue-600 text-white rounded-md p-3 text-lg">
+          <button
+            className="bg-blue-400 hover:bg-blue-600 text-white rounded-md p-3 text-lg"
+            onClick={handleSignIn}
+          >
             Login
           </button>
         </div>
