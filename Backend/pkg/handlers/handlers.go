@@ -1,66 +1,81 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
-	"os"
 
+	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/constants"
+	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/dao"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/structs"
-	"golang.org/x/oauth2/google"
-	customsearch "google.golang.org/api/customsearch/v1"
-	"google.golang.org/api/option"
+	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/utils"
 )
 
-func SearchHandler(env structs.Env) http.HandlerFunc {
+func SearchHandler(env structs.Env, mydb *dao.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173") // 許可するオリジンを指定
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")   // 許可するHTTPメソッドを指定
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")         // 許可するリクエストヘッダーを指定
-
-		fmt.Println("Search Handler")
-
+		var response structs.ResponseSearch
+		// クエリパラメータを解析する
 		query := r.URL.Query()
 		keyword := query.Get("keyword")
-		fmt.Println("keyword>>", keyword)
-		jsonData, err := os.ReadFile("search-key.json")
-		if err != nil {
-			log.Println(err.Error)
+
+		if keyword == "" {
+			log.Println(constants.ErrMessageQuery)
+			response.Status = "failed"
+			response.Cause = constants.ErrMessageQuery
+		} else {
+			var img structs.DatabaseImage
+			success, img := mydb.Find(img, keyword)
+			// keywordがデータベースに存在するかチェックする
+			if success {
+				mydb.Update(keyword)
+
+				response.ImageData.Images = img.ImageData.Images
+				response.Status = "success"
+			} else {
+				call := utils.GetGoogleCustomSearchApiResponse(env, keyword, constants.BeforeLevel0)
+				if call != nil {
+					for index, r := range call.Items {
+						response.ImageData.Images[index] = r.Link
+					}
+					mydb.Insert(keyword, response.ImageData.Images, constants.SearchInitCount)
+					response.Status = "success"
+				} else {
+					response.Status = "failed"
+					response.Cause = constants.ErrMessageApi
+				}
+			}
 		}
+		// Content-Typeヘッダーをapplication/jsonに設定
+		w.Header().Set("Content-Type", "application/json")
 
-		conf, err := google.JWTConfigFromJSON(jsonData, env.CsePath)
-		if err != nil {
-			log.Println(err)
+		// マップをJSONにエンコードしてレスポンスとして送信
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
+func DescriptionHandler(mydb *dao.Database) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var response structs.ResponseDescription
+		// クエリパラメータを解析する
+		query := r.URL.Query()
+		keyword := query.Get("keyword")
+
+		if keyword == "" {
+			log.Println(constants.ErrMessageQuery)
+			response.Status = "failed"
+			response.Cause = constants.ErrMessageQuery
+		} else {
+			var img structs.DatabaseImage
+			success, img := mydb.Find(img, keyword)
+			// keywordがデータベースに存在するかチェックする
+			if success {
+				response.Description = img
+				response.Status = "success"
+			} else {
+				response.Status = "failed"
+				response.Cause = constants.ErrMessageDb
+			}
 		}
-
-		client := conf.Client(context.Background())
-		cseService, err := customsearch.NewService(context.Background(), option.WithHTTPClient(client))
-		if err != nil {
-			return
-		}
-		// 検索ワードの設定
-		search := cseService.Cse.List().Q(keyword)
-
-		// 検索エンジンIDを設定
-		search.Cx(env.SearchEngineId)
-		// Custom Search Engineで「画像検索」をオンにする
-		search.SearchType("image")
-
-		search.Start(1)
-		call, err := search.Do()
-		if err != nil {
-			log.Println(err)
-		}
-
-		var response structs.ResponseImage
-
-		for index, r := range call.Items {
-			response.Images[index] = r.Link
-		}
-
 		// Content-Typeヘッダーをapplication/jsonに設定
 		w.Header().Set("Content-Type", "application/json")
 

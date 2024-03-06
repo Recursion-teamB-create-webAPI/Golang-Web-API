@@ -6,10 +6,43 @@ import (
 
 type Env struct {
 	SearchEngineId string
+	KeyFileName    string
 	CsePath        string
 	PortNumber     string
+	DatabaseName   string
+	MysqlUri       string
 }
 
-type ResponseImage struct {
+type ImageArray struct {
 	Images [constants.SearchResultNumber]string `json:"images"`
+}
+
+type ResponseSearch struct {
+	ImageData ImageArray `json:"imageData"`
+	Status    string     `json:"status"`
+	Cause     string     `json:"cause"`
+}
+
+type ResponseDescription struct {
+	Description DatabaseImage `json:"description"`
+	Status      string        `json:"status"`
+	Cause       string        `json:"cause"`
+}
+
+type InitImageItems struct {
+	ImageItems []Items `json:"ImageItems"`
+}
+
+type Items struct {
+	Item      string     `json:"item"`
+	ImageData ImageArray `json:"imageData"`
+}
+
+type DatabaseImage struct {
+	Id          int        `json:"id"`
+	Item        string     `json:"item"`
+	ImageData   ImageArray `json:"imageData"`
+	SearchCount int        `json:"search_count"`
+	CreatedAt   string     `json:"created_at"`
+	UpdatedAt   string     `json:"updated_at"`
 }
