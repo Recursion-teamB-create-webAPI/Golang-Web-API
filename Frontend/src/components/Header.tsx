@@ -1,4 +1,4 @@
-import Logout from "./Logout";
+import Signout from "./Signout";
 import Avatar from "react-avatar";
 
 const Header = () => {
@@ -9,7 +9,7 @@ const Header = () => {
           <h1 className="text-4xl text-blue-500">Any Search</h1>
           <div className="flex items-center">
             <Avatar name="TlexCypher Swapman" round size="50" color="#0055D1" />
-            <Logout />
+            <Signout />
           </div>
         </div>
       </header>

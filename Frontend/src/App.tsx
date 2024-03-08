@@ -5,6 +5,7 @@ import axios from "axios";
 import SignIn from "./components/SignIn";
 import SignUp from "./components/SignUp";
 import Description from "./components/Description";
+import RouteAuthGuard from "./components/RouteAuthGuard";
 
 function App() {
   axios.defaults.baseURL = "http://localhost:8000";
@@ -14,10 +15,18 @@ function App() {
       <BrowserRouter>
         <Layout>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/description/:imageURL" element={<Description />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/:username">
+              <Route
+                path=""
+                element={<RouteAuthGuard component={<Home />} />}
+              />
+              <Route
+                path="description/:imageURL"
+                element={<RouteAuthGuard component={<Description />} />}
+              />
+            </Route>
           </Routes>
         </Layout>
       </BrowserRouter>

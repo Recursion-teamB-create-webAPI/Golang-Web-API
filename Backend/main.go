@@ -45,6 +45,8 @@ func main() {
 
 	http.Handle("/api/signin", http.HandlerFunc(handlers.SignInHandler(env, mydb)))
 
+	http.Handle("/api/signout", http.HandlerFunc(handlers.SignOutHandler(env, mydb)))
+
 	// 8000番ポートでサーバを開始
 	http.ListenAndServe(env.PortNumber, nil)
 

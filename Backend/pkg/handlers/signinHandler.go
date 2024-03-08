@@ -90,6 +90,7 @@ func SignInHandler(env structs.Env, db *dao.Database) http.HandlerFunc {
 		http.SetCookie(w, &cookie)
 		var resp structs.ResponseSignIn
 		resp.Username = user.Username
+		resp.Token = tokenString
 		json.NewEncoder(w).Encode(structs.ResponseSignIn(resp))
 	}
 }

@@ -1,20 +1,36 @@
-import axios from "axios";
+import axios, { HttpStatusCode } from "axios";
+import { jwtDecode } from "jwt-decode";
 import { ChangeEvent, FormEvent, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const SignIn = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  sessionStorage.removeItem("authUsername");
 
   const handleSignIn = async (e: FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    console.log("Username>>", username);
-    console.log("Password>>", password);
-
+    if (username === "" || password === "") {
+      alert("ユーザー名とパスワードを入力してください");
+      return;
+    }
     const resp = await axios.post("/api/signin", {
       username: username,
       password: password,
     });
-    console.log("signin response>>", resp);
+    if (resp.status === HttpStatusCode.Ok) {
+      const jwtToken: JwtPayload = jwtDecode(resp.data.token);
+      sessionStorage.setItem("authUsername", jwtToken.username);
+      navigate(`/${jwtToken.username}`);
+    } else {
+      alert("そのようなユーザは存在しません");
+      return;
+    }
+  };
+
+  const handleGoSignUpPage = () => {
+    navigate("/signup");
   };
 
   const handleUsername = (e: ChangeEvent<HTMLInputElement>) => {
@@ -27,7 +43,7 @@ const SignIn = () => {
 
   return (
     <div className="flex justify-center mt-20 drop-shadow-xl">
-      <form className="bg-white px-10 pb-10 rounded-xl w-80 h-80">
+      <form className="bg-white px-10 pb-10 rounded-xl w-84 h-80">
         <p className="text-2xl text-center my-5 text-blue-400">Sign In Form</p>
         <div>
           <p className="text-lg"> Username </p>
@@ -52,7 +68,13 @@ const SignIn = () => {
             className="bg-blue-400 hover:bg-blue-600 text-white rounded-md p-3 text-lg"
             onClick={handleSignIn}
           >
-            Login
+            Sign In
+          </button>
+          <button
+            className="text-blue-500 rounded-xl p-1 text-sm"
+            onClick={handleGoSignUpPage}
+          >
+            アカウントを作る
           </button>
         </div>
       </form>
