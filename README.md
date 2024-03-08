@@ -427,6 +427,6 @@ Go言語は、豊富なライブラリを提供しており、テストコード
 - [Custom Search JSON API](https://developers.google.com/custom-search/v1/overview?hl=ja)
 
 ### 参考にしたサイト
-[A Tour of Go](https://go-tour-jp.appspot.com/list)
-[Recursion_Go入門](https://recursionist.io/learn/languages/go)
+- [A Tour of Go](https://go-tour-jp.appspot.com/list)
+- [Recursion_Go入門](https://recursionist.io/learn/languages/go)
 
