@@ -323,3 +323,110 @@ curl https://pixfinder.aki158-website.blog/api/total_result?keyword=bi&page=2&pe
 
 ## ⭐こだわった点
 
+### アクティビティ図
+
+バックエンドの実装を本格的に開始する前に、設計資料としてアクティビティ図を作成しました。
+
+作成した経緯としては、要件について各メンバー間で認識のずれがあると考えたからです。
+
+アクティビティ図は、プロセスの理解やコミュニケーションを助けるツールとして、よく利用されます。
+
+今回は、以下のような5つのアクティビティ図を作成しました。
+
+これにより、チーム内で要件についての共通認識を持つことができ、コミュニケーションを円滑に進めることができました。
+
+また、アクティビティ図をもとに実装したファイルは、以下のリンクから確認することができます。
+
+【ToDo】ファイルのリンクは、mainブランチに最終成果物がマージされてからやる
+
+- main.go
+- handlers.go
+
+#### main関数
+
+![image](https://github.com/Recursion-teamB-create-webAPI/Golang-Web-API/assets/119317071/82ad707a-2005-4805-b806-ff1eb7bfaa49)
+
+#### 検索機能
+
+![image](https://github.com/Recursion-teamB-create-webAPI/Golang-Web-API/assets/119317071/f538c522-53e5-443f-bd3a-bed8dc27e8dd)
+
+#### 詳細表示
+
+![image](https://github.com/Recursion-teamB-create-webAPI/Golang-Web-API/assets/119317071/376a6df8-975f-490e-ba7e-f4d6b964cc66)
+
+#### リスト表示
+
+![image](https://github.com/Recursion-teamB-create-webAPI/Golang-Web-API/assets/119317071/00be581e-726c-4166-82cb-60a70b81775d)
+
+#### データの集計
+
+![image](https://github.com/Recursion-teamB-create-webAPI/Golang-Web-API/assets/119317071/843dc59a-73bc-49d8-9544-3d7a15d1de63)
+
+### データアクセス層
+
+データアクセス層は、ビジネスロジックを扱うアプリケーション層(`handlers.go`)とデータ層（MySQLのようなSQL RDBMSなど）の間の橋渡しをします。
+
+今回は、データアクセス層として`dao.go`を作成しました。
+
+これは、MySQLへのCRUD操作や接続などに使用されます。
+
+これを利用することにより、ビジネスロジックのコードに影響を与えることなく、データ層との連携を担うコードの多くを容易に交換することができます。
+
+例えば、今回は、データ層にMySQLを使用していますが、MongoDBのような他のDBに交換することもできます。
+
+これにより、コードの可読性やメンテナンスが容易になります。
+
+【ToDo】ファイルのリンクは、mainブランチに最終成果物がマージされてからやる
+
+### バックエンドの単体テスト
+
+バックエンドには、Go言語を使用しており、各関数毎に単体テストを行いコードの信頼性を担保しました。
+
+Go言語は、豊富なライブラリを提供しており、テストコードには、`net/http/httptest`と`github.com/DATA-DOG/go-sqlmock`を利用しました。
+
+用途は、以下の通りです。
+
+- `net/http/httptest` : `handlers.go`の4つのハンドラー関数に利用し、リクエスト/レスポンスの検証を行いました。
+- `github.com/DATA-DOG/go-sqlmock`　: `dao.go`のデータ層に関わる関数に利用し、クエリの検証を行いました。
+
+また、テストコードは、以下のリンクから確認することができます。
+
+【ToDo】ファイルのリンクは、mainブランチに最終成果物がマージされてからやる
+
+### チーム開発
+
+チーム開発では、各メンバー間でのコミュニケーションは不可欠です。
+
+コミュニケーションツールとして、以下のようなアプリケーションを利用しました。
+
+| アプリケーション | 目的 |
+| ------- | ------- |
+| Discord | チャットでの連絡ややりとり |
+| GitHubのissue | 課題管理 |
+| Ovice | ミーティング |
+
+ミーティングでは、チーム開発が順調か、困りごとや改善点がないかなどを確認しました。
+
+ミーティング実施後は、アクションの確認や議論の内容を見返すために議事録を作成しました。
+
+議事録には、3つの項目について定期的にチームでミーティングを開催し議論した内容を記載しています。
+
+| 項目 | 内容 |
+| ------- | ------- |
+| やったこと(その週に実装した内容) | 前回のミーティング以降に各メンバーで実施した内容を共有します。<br>計画通りに進められているか確認します。<br>計画から遅れている場合は、各メンバーの進捗と合わせて検討し、マイルストーンを後ろにずらすか他メンバーで作業を巻き取るかなどを議論します。 |
+| 直面した問題 | 仕様の確認や設計、実装時にでた不明点や問題、困りごとを共有します。<br>共有することで、再発防止やメンバー同士の共通認識の確認、改善点などがわかります。 |
+| 今後の課題 | 次回のミーティングまでに、各メンバーが実施する内容を記載しています。<br>ここで決めた内容が、次回のミーティングまでの各メンバーのアクションになります。 |
+
+議事録は、以下リンクから確認してください。
+
+[dev-log.md](https://github.com/Recursion-teamB-create-webAPI/team-b-devlog/blob/main/dev-log.md)
+
+## 📑参考文献
+### 公式ドキュメント
+- [MySQL](https://dev.mysql.com/doc/refman/8.0/en/innodb-online-ddl-operations.html)
+- [Custom Search JSON API](https://developers.google.com/custom-search/v1/overview?hl=ja)
+
+### 参考にしたサイト
+[A Tour of Go](https://go-tour-jp.appspot.com/list)
+[Recursion_Go入門](https://recursionist.io/learn/languages/go)
+
