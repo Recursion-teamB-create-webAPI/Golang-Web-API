@@ -3,11 +3,14 @@ package utils
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 
+	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/constants"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/structs"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2/google"
@@ -130,4 +133,78 @@ func GetWalkTargetPath(targetFile string, beforeLevel int) string {
 		log.Println("Could not find targetFile")
 	}
 	return targetPath
+}
+
+func GetSqlQury(item string, queryArr structs.TotalResultQueryArray) (string, []interface{}) {
+	var sqlQuery string
+	var orderBy string
+	var args []interface{}
+	skipRows := (queryArr.Page - 1) * queryArr.PerPage
+	baseQuery := "SELECT item, search_count, updated_at FROM Images"
+	orderClause := " ORDER BY %s DESC LIMIT ? OFFSET ?;"
+
+	// クエリパラメータの値にあわせて、SQLのクエリをセットする
+	if queryArr.Order == "count" {
+		orderBy = "search_count"
+	} else {
+		orderBy = "updated_at"
+	}
+
+	if item == "" {
+		sqlQuery = fmt.Sprintf(baseQuery+orderClause, orderBy)
+		args = append(args, queryArr.PerPage, skipRows)
+	} else {
+		whereClause := " WHERE item LIKE ?"
+		sqlQuery = fmt.Sprintf(baseQuery+whereClause+orderClause, orderBy)
+		args = append(args, "%"+item+"%", queryArr.PerPage, skipRows)
+	}
+	return sqlQuery, args
+}
+
+func QueryParameterCheck(page string, perPage string, order string) (bool, structs.TotalResultQueryArray) {
+	var queryArr structs.TotalResultQueryArray
+
+	// デフォルト値を設定
+	page, perPage, order = SetDefaultValue(page, perPage, order)
+
+	// クエリパラメータのチェック
+	pageNum, err := strconv.Atoi(page)
+	if err != nil {
+		log.Println(constants.ErrMessageQueryNotCorrect)
+		return false, queryArr
+	}
+
+	perPageNum, err := strconv.Atoi(perPage)
+	if err != nil {
+		log.Println(constants.ErrMessageQueryNotCorrect)
+		return false, queryArr
+	}
+
+	pageSuccess := pageNum >= 1 && pageNum <= 10
+	perPageSuccess := perPageNum >= 1 && perPageNum <= 10
+	orderSuccess := order == "count" || order == "newest"
+	success := pageSuccess && perPageSuccess && orderSuccess
+
+	queryArr = structs.TotalResultQueryArray{
+		Page:    pageNum,
+		PerPage: perPageNum,
+		Order:   order,
+	}
+	return success, queryArr
+}
+
+func SetDefaultValue(page string, perPage string, order string) (string, string, string) {
+	// クエリパラメータが設定されていない場合のデフォルト値設定
+	if page == "" {
+		page = "1"
+	}
+
+	if perPage == "" {
+		perPage = "5"
+	}
+
+	if order == "" {
+		order = "count"
+	}
+	return page, perPage, order
 }

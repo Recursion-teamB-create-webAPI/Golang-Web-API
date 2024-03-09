@@ -23,9 +23,9 @@ func SearchHandler(env structs.Env, mydb *dao.Database) http.HandlerFunc {
 			response.Status = "failed"
 			response.Cause = constants.ErrMessageQuery
 		} else {
-			var img structs.DatabaseImage
-			success, img := mydb.Find(img, keyword)
 			// keywordがデータベースに存在するかチェックする
+			success, img := mydb.Find(keyword)
+
 			if success {
 				mydb.Update(keyword)
 
@@ -65,9 +65,9 @@ func DescriptionHandler(mydb *dao.Database) http.HandlerFunc {
 			response.Status = "failed"
 			response.Cause = constants.ErrMessageQuery
 		} else {
-			var img structs.DatabaseImage
-			success, img := mydb.Find(img, keyword)
 			// keywordがデータベースに存在するかチェックする
+			success, img := mydb.Find(keyword)
+
 			if success {
 				response.Description = img
 				response.Status = "success"
@@ -96,8 +96,9 @@ func ListHandler(mydb *dao.Database) http.HandlerFunc {
 			response.List = mydb.ReadAllItem()
 			response.Status = "success"
 		} else {
-			success, list := mydb.ReadPartialMatchItem(keyword)
 			// keywordがデータベースに存在するかチェックする
+			success, list := mydb.ReadPartialMatchItem(keyword)
+
 			if success {
 				response.List = list
 				response.Status = "success"
@@ -107,6 +108,44 @@ func ListHandler(mydb *dao.Database) http.HandlerFunc {
 				response.Cause = constants.ErrMessageNotExist
 			}
 		}
+		// Content-Typeヘッダーをapplication/jsonに設定
+		w.Header().Set("Content-Type", "application/json")
+
+		// マップをJSONにエンコードしてレスポンスとして送信
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
+func TotalResultHandler(mydb *dao.Database) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var response structs.ResponseTotalResult
+		// クエリパラメータを解析する
+		query := r.URL.Query()
+		keyword := query.Get("keyword")
+		page := query.Get("page")
+		perPage := query.Get("perpage")
+		order := query.Get("order")
+
+		// クエリパラメータに適切な値がセットされているかのチェック
+		successCheck, queryArr := utils.QueryParameterCheck(page, perPage, order)
+
+		if successCheck {
+			successRead, totalResults := mydb.ReadTotalResult(keyword, queryArr)
+
+			if successRead {
+				response.TotalResult = totalResults
+				response.Status = "success"
+			} else {
+				log.Println(constants.ErrMessageQuerySetValue)
+				response.Status = "failed"
+				response.Cause = constants.ErrMessageQuerySetValue
+			}
+		} else {
+			log.Println(constants.ErrMessageQueryNotCorrect)
+			response.Status = "failed"
+			response.Cause = constants.ErrMessageQueryNotCorrect
+		}
+
 		// Content-Typeヘッダーをapplication/jsonに設定
 		w.Header().Set("Content-Type", "application/json")
 

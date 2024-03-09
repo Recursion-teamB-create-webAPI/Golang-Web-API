@@ -205,7 +205,6 @@ func TestDatabase_Find(t *testing.T) {
 			}
 			defer db.Close()
 
-			var img structs.DatabaseImage
 			initImi := utils.GetInitImagesJson(constants.BeforeLevel3)
 
 			item := initImi.ImageItems[0].Item
@@ -223,7 +222,7 @@ func TestDatabase_Find(t *testing.T) {
 				WillReturnRows(sqlmock.NewRows([]string{"id", "item", "images", "search_count", "created_at", "updated_at"}).AddRow(id, item, string(imagesJSON), count, date, date))
 
 			database := &Database{UseDb: db}
-			success, _ := database.Find(img, item)
+			success, _ := database.Find(item)
 
 			if !success {
 				t.Errorf("An error occurred!")
@@ -243,7 +242,6 @@ func TestDatabase_Find(t *testing.T) {
 			}
 			defer db.Close()
 
-			var img structs.DatabaseImage
 			initImi := utils.GetInitImagesJson(constants.BeforeLevel3)
 
 			item := initImi.ImageItems[0].Item
@@ -254,7 +252,7 @@ func TestDatabase_Find(t *testing.T) {
 				WillReturnRows(sqlmock.NewRows([]string{"id", "item", "images", "search_count", "created_at", "updated_at"}))
 
 			database := &Database{UseDb: db}
-			success, _ := database.Find(img, item)
+			success, _ := database.Find(item)
 
 			if success {
 				t.Errorf("An error occurred!")

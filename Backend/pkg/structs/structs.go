@@ -31,12 +31,30 @@ type ResponseList struct {
 	Cause  string   `json:"cause"`
 }
 
-type InitImageItems struct {
-	ImageItems []Items `json:"ImageItems"`
+type ResponseTotalResult struct {
+	TotalResult []TotalResultItems `json:"totalResult"`
+	Status      string             `json:"status"`
+	Cause       string             `json:"cause"`
+}
+
+type TotalResultQueryArray struct {
+	Page    int
+	PerPage int
+	Order   string
 }
 
 type ImageArray struct {
 	Images [constants.SearchResultNumber]string `json:"images"`
+}
+
+type InitImageItems struct {
+	ImageItems []Items `json:"ImageItems"`
+}
+
+type TotalResultItems struct {
+	Item        string `json:"item"`
+	SearchCount int    `json:"search_count"`
+	UpdatedAt   string `json:"updated_at"`
 }
 
 type Items struct {
