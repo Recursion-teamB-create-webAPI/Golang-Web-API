@@ -7,34 +7,31 @@ import (
 
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/constants"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/dao"
-	utilError "github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/errors/util"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/structs"
 )
 
 
-
-func DescriptionHandler(mydb *dao.Database) http.HandlerFunc {
+func ListHandler(mydb *dao.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var response structs.ResponseDescription
+		var response structs.ResponseList
 		// クエリパラメータを解析する
 		query := r.URL.Query()
 		keyword := query.Get("keyword")
 
 		if keyword == "" {
-			nke := utilError.NewNoKeywordError()
-			log.Println(nke.Error())
-			response.Status = "failed"
-			response.Cause = constants.ErrMessageQuery
+			response.List = mydb.ReadAllItem()
+			response.Status = "success"
 		} else {
-			var img structs.DatabaseImage
-			success, img := mydb.Find(keyword)
 			// keywordがデータベースに存在するかチェックする
+			success, list := mydb.ReadPartialMatchItem(keyword)
+
 			if success {
-				response.Description = img
+				response.List = list
 				response.Status = "success"
 			} else {
+				log.Println(constants.ErrMessageNotExist)
 				response.Status = "failed"
-				response.Cause = constants.ErrMessageDb
+				response.Cause = constants.ErrMessageNotExist
 			}
 		}
 		// Content-Typeヘッダーをapplication/jsonに設定

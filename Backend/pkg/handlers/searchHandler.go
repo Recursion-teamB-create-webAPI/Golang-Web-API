@@ -32,9 +32,9 @@ func SearchHandler(env structs.Env, mydb *dao.Database) http.HandlerFunc {
 			response.Status = "failed"
 			response.Cause = constants.ErrMessageQuery
 		} else {
-			var img structs.DatabaseImage
-			success, img := mydb.Find(img, keyword)
 			// keywordがデータベースに存在するかチェックする
+			success, img := mydb.Find(keyword)
+
 			if success {
 				mydb.Update(keyword)
 
@@ -63,3 +63,5 @@ func SearchHandler(env structs.Env, mydb *dao.Database) http.HandlerFunc {
 		json.NewEncoder(w).Encode(response)
 	}
 }
+
+

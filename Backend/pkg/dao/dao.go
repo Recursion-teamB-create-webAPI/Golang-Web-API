@@ -47,9 +47,7 @@ func (db *Database) InsertInitData(beforeLevel int) {
 
 	if initImi != nil {
 		for i := 0; i < constants.ItemCount; i++ {
-			var img structs.DatabaseImage
-
-			success, _ := db.Find(img, initImi.ImageItems[i].Item)
+			success, _ := db.Find(initImi.ImageItems[i].Item)
 			if !success {
 				db.Insert(initImi.ImageItems[i].Item, initImi.ImageItems[i].ImageData.Images, 0)
 			}
@@ -57,7 +55,8 @@ func (db *Database) InsertInitData(beforeLevel int) {
 	}
 }
 
-func (db *Database) Find(img structs.DatabaseImage, item string) (bool, structs.DatabaseImage) {
+func (db *Database) Find(item string) (bool, structs.DatabaseImage) {
+	var img structs.DatabaseImage
 	query := `SELECT * FROM Images WHERE item = ?;`
 	res, err := db.UseDb.Query(query, string(item))
 	if err != nil {
@@ -75,6 +74,69 @@ func (db *Database) Find(img structs.DatabaseImage, item string) (bool, structs.
 		log.Println(err)
 	}
 	return item == img.Item, img
+}
+
+func (db *Database) ReadAllItem() []string {
+	var items []string
+
+	query := `SELECT item FROM Images;`
+	res, err := db.UseDb.Query(query)
+	if err != nil {
+		log.Println(err)
+	}
+
+	for res.Next() {
+		var item string
+		res.Scan(&item)
+		items = append(items, item)
+	}
+	return items
+}
+
+func (db *Database) ReadPartialMatchItem(item string) (bool, []string) {
+	var items []string
+
+	query := `SELECT item FROM Images WHERE item LIKE ?;`
+	res, err := db.UseDb.Query(query, "%"+item+"%")
+	if err != nil {
+		log.Println(err)
+	}
+
+	for res.Next() {
+		var item string
+		res.Scan(&item)
+		items = append(items, item)
+	}
+	return items != nil, items
+}
+
+func (db *Database) ReadTotalResult(item string, queryArr structs.TotalResultQueryArray) (bool, []structs.TotalResultItems) {
+	var totalResults []structs.TotalResultItems
+
+	// クエリ実行に必要な値を取得する
+	query, args := utils.GetSqlQury(item, queryArr)
+
+	res, err := db.UseDb.Query(query, args...)
+	if err != nil {
+		log.Println(err)
+	}
+
+	for res.Next() {
+		var item string
+		var searchCount int
+		var updatedAt string
+
+		res.Scan(&item, &searchCount, &updatedAt)
+
+		newTotalResult := structs.TotalResultItems{
+			Item:        item,
+			SearchCount: searchCount,
+			UpdatedAt:   updatedAt,
+		}
+
+		totalResults = append(totalResults, newTotalResult)
+	}
+	return totalResults != nil, totalResults
 }
 
 func (db *Database) Insert(item string, images [constants.SearchResultNumber]string, searchCount int) {
