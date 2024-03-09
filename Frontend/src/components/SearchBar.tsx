@@ -1,6 +1,15 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { useSearchResultState } from "../store/SearchResultStore";
 import { useSearchState } from "../store/SearchStore";
+import { Button, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+type SearchCandidate = {
+  item: string;
+  search_count: number;
+  updated_at: Date;
+};
 
 const SearchBar = () => {
   const getSearchResultState = useSearchResultState(
@@ -11,6 +20,10 @@ const SearchBar = () => {
     state.setSearchString,
   ]);
 
+  const [searchCandidates, setSearchCandidates] = useState<SearchCandidate[]>(
+    []
+  );
+
   const handleSearch = async () => {
     if (searchString === "") return;
     getSearchResultState({ keyword: searchString });
@@ -19,6 +32,16 @@ const SearchBar = () => {
   const handleSearchString = (e) => {
     setSearchString(e.target.value);
   };
+
+  const handleSearchCandidate = async () => {
+    const resp = await axios.get("/api/total_result");
+    const data: SearchCandidate[] = resp.data.totalResult;
+    setSearchCandidates(data);
+  };
+
+  useEffect(() => {
+    handleSearchCandidate();
+  }, []);
 
   return (
     <>
@@ -29,6 +52,7 @@ const SearchBar = () => {
             className="h-10 w-full ml-2 outline-none rounded-md"
             placeholder="Search"
             onChange={handleSearchString}
+            value={searchString}
           />
         </div>
         <button
@@ -38,6 +62,30 @@ const SearchBar = () => {
         >
           Search
         </button>
+        <Menu>
+          <MenuButton
+            as={Button}
+            ml={4}
+            p={4}
+            color="black" // テキストの色を設定
+            fontWeight={"bold"}
+          >
+            検索候補の表示
+          </MenuButton>
+          <MenuList>
+            {searchCandidates.length > 0 &&
+              searchCandidates.map((candidate, index) => (
+                <MenuItem
+                  key={index}
+                  onClick={() => setSearchString(candidate.item)}
+                >
+                  <p className="bg-white text-blue-500 font-bold w-full text-lg px-4 py-2 mb-2 rounded-md">
+                    {candidate.item}
+                  </p>
+                </MenuItem>
+              ))}
+          </MenuList>
+        </Menu>
       </div>
     </>
   );

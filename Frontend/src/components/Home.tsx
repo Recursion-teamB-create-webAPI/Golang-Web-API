@@ -9,11 +9,11 @@ const Home = () => {
     <>
       <SearchBar />
       {searchResults.length > 0 ? (
-        <p className="mt-3 mx-auto font-bold text-xl text-blue-500">
+        <p className="mt-3 mx-auto font-bold text-xl text-blue-500 px-4">
           検索結果一覧
         </p>
       ) : (
-        <p className="mt-3 mx-auto font-bold text-xl text-blue-500">
+        <p className="mt-3 mx-auto font-bold text-xl text-blue-500 px-4">
           検索結果なし
         </p>
       )}
