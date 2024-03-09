@@ -27,6 +27,7 @@ const SearchBar = () => {
   const handleSearch = () => {
     if (searchString === "") return;
     getSearchResultState({ keyword: searchString });
+    handleSearchCandidate();
   };
 
   const handleSearchString = (e) => {
@@ -72,15 +73,17 @@ const SearchBar = () => {
           >
             検索候補の表示
           </MenuButton>
-          <MenuList>
+          <MenuList mt={10}>
             {searchCandidates.length > 0 &&
               searchCandidates.map((candidate, index) => (
                 <MenuItem
                   key={index}
                   onClick={() => setSearchString(candidate.item)}
                 >
-                  <p className="bg-white text-blue-500 font-bold w-full text-lg px-4 py-2 mb-2 rounded-md">
-                    {candidate.item}
+                  <p className="bg-white font-bold min-w-96 text-lg px-4 py-2 mb-2 rounded-md flex justify-between">
+                    <span className="text-[#0055d1] pr-5">{`検索用語: ${candidate.item}`}</span>
+                    <span className="pr-5 text-pink-500">{`検索回数: ${candidate.search_count}`}</span>
+                    <span className="text-emerald-500">{`最後に調べた日時: ${candidate.updated_at}`}</span>
                   </p>
                 </MenuItem>
               ))}
