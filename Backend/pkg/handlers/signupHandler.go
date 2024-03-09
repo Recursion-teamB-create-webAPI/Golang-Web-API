@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -18,42 +17,52 @@ func SignUpHandler(env structs.Env, db *dao.Database) http.HandlerFunc {
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		w.Header().Set("Content-Type", "application/json")
 
+		var resp structs.ResponseSignUp
+
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
 
 		if r.Method != http.MethodPost {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			resp.Status = http.StatusMethodNotAllowed
+			resp.Id = -1 
+			resp.Username = ""
+			json.NewEncoder(w).Encode(resp)
 			return
 		}
 
 		var user structs.User
 		err := json.NewDecoder(r.Body).Decode(&user)
 		if err != nil {
-			http.Error(w, "Bad request", http.StatusBadRequest)
+			resp.Status = http.StatusInternalServerError
+			resp.Id = -1
+			resp.Username = ""
+			json.NewEncoder(w).Encode(resp)
 			return
 		}
-		fmt.Printf("Username: %v\n", user.Username)
-		fmt.Printf("Password: %v\n", user.Password)
 
 		err = dao.CreateUsersTable(db.UseDb)
 		if err != nil {
 			log.Println("Failed to create Users table.")
-			http.Error(w, "Failed to create User table.", http.StatusInternalServerError)
+			resp.Status = http.StatusInternalServerError
+			resp.Id = -1
+			resp.Username = ""
+			json.NewEncoder(w).Encode(resp)
 			return
 		}
 
 		err = dao.InsertUser(db.UseDb, user.Username, user.Password)
 		if err != nil {
 			log.Println("Failed to insert user into Users table.")
-			http.Error(w, "Failed to insert user into Users table.", http.StatusInternalServerError)
+			resp.Status = http.StatusBadRequest
+			resp.Id = -1
+			resp.Username = ""
+			json.NewEncoder(w).Encode(resp)
 			return
 		}
-
-		var resp structs.ResponseSignUp
+		resp.Status = http.StatusOK
 		resp.Username = user.Username
-
 		json.NewEncoder(w).Encode(resp)
 	}
 }

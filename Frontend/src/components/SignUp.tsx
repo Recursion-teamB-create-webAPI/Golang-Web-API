@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { HttpStatusCode } from "axios";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -10,13 +10,18 @@ const SignUp = () => {
 
   const handleSignUp = async (e: FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const response = await axios.post("/api/signup", {
+    const { data } = await axios.post("/api/signup", {
       username: username,
       password: password,
     });
-    naviate(`/${username}`, {
-      state: { username: username, from: from },
-    });
+    console.log("SignUp Response>>", data);
+    if (data.status === HttpStatusCode.Ok) {
+      naviate(`/${username}`, {
+        state: { username: username, from: from },
+      });
+    } else {
+      alert("ユーザ作成に失敗しました。すでにアカウントを有していませんか？");
+    }
   };
 
   const handleGoSignInPage = () => {

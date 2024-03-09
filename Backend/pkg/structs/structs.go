@@ -27,6 +27,7 @@ type ResponseSearch struct {
 type ResponseSignUp struct {
 	Id       int    `json:"id"`
 	Username string `json:"username"`
+  	Status int `json:"status"`
 }
 
 type ResponseSignIn struct {

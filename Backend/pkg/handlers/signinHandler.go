@@ -104,9 +104,11 @@ func SignInHandler(env structs.Env, db *dao.Database) http.HandlerFunc {
 					}
 					//return response
 					http.SetCookie(w, &cookie)
+					resp.Status = http.StatusOK
 					resp.Username = user.Username
 					resp.Token = tokenString
 					json.NewEncoder(w).Encode(structs.ResponseSignIn(resp))
+					return
 				}
 			}
 		}
