@@ -15,12 +15,12 @@ const SignIn = () => {
       alert("ユーザー名とパスワードを入力してください");
       return;
     }
-    const resp = await axios.post("/api/signin", {
+    const { data } = await axios.post("/api/signin", {
       username: username,
       password: password,
     });
-    if (resp.status === HttpStatusCode.Ok) {
-      const jwtToken: JwtPayload = jwtDecode(resp.data.token);
+    if (data.status === HttpStatusCode.Ok) {
+      const jwtToken: JwtPayload = jwtDecode(data.token);
       sessionStorage.setItem("authUsername", jwtToken.username);
       navigate(`/${jwtToken.username}`);
     } else {

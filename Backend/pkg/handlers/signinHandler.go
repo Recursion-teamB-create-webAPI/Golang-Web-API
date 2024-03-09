@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -20,13 +19,19 @@ func SignInHandler(env structs.Env, db *dao.Database) http.HandlerFunc {
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		w.Header().Set("Content-Type", "application/json")
 
+
+		var resp structs.ResponseSignIn
+
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
 
 		if r.Method != http.MethodPost {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			resp.Status = http.StatusMethodNotAllowed
+			resp.Username = ""
+			resp.Token = ""
+			json.NewEncoder(w).Encode(resp);
 			return
 		}
 
@@ -34,7 +39,10 @@ func SignInHandler(env structs.Env, db *dao.Database) http.HandlerFunc {
 		err := json.NewDecoder(r.Body).Decode(&user)
 
 		if err != nil {
-			http.Error(w, "Bad Request", http.StatusBadRequest)
+			resp.Status = http.StatusBadRequest
+			resp.Username = ""
+			resp.Token = ""
+			json.NewEncoder(w).Encode(resp);
 			return
 		}
 
@@ -42,7 +50,10 @@ func SignInHandler(env structs.Env, db *dao.Database) http.HandlerFunc {
 		rows, err := db.UseDb.Query(query)
 		if err != nil {
 			log.Printf("Failed to exec db query: %v\n", query)
-			http.Error(w, "Failed to exec db select query", http.StatusInternalServerError)
+			resp.Status = http.StatusInternalServerError
+			resp.Username = ""
+			resp.Token = ""
+			json.NewEncoder(w).Encode(resp);
 			return
 		}
 		defer rows.Close()
@@ -55,42 +66,54 @@ func SignInHandler(env structs.Env, db *dao.Database) http.HandlerFunc {
 			err := rows.Scan(&u, &p)
 			if err != nil {
 				log.Printf("Failed to scan db row: %v\n", err.Error())
-				http.Error(w, "Failed to scan db row", http.StatusInternalServerError)
+				resp.Status = http.StatusInternalServerError
+				resp.Username = ""
+				resp.Token = ""
+				json.NewEncoder(w).Encode(resp);
+				return
 			}
-			fmt.Printf("Username: %v\n", u)
-			fmt.Printf("Password: %v\n", p)
 
 			if u == user.Username {
 				err = bcrypt.CompareHashAndPassword([]byte(p), []byte(user.Password))
 				if err != nil {
 					log.Println("Password does not match")
-					http.Error(w, "Password does not match", http.StatusBadRequest)
+					resp.Status = http.StatusBadRequest
+					resp.Username = ""
+					resp.Token = ""
+					json.NewEncoder(w).Encode(resp);
 					return
+				} else {
+					//Create JWT token
+					tokenString, err := jwt.GenerateToken(env, user.Username)
+					if err != nil {
+						resp.Status = http.StatusBadRequest
+						resp.Username = ""
+						resp.Token = ""
+						json.NewEncoder(w).Encode(resp);
+						return
+					}
+					//Set token into cookie
+					cookie := http.Cookie{
+						Name:     "jwt_token",
+						Value:    tokenString,
+						Expires:  time.Now().Add(time.Hour * 24),
+						HttpOnly: true,
+						SameSite: http.SameSiteStrictMode,
+						Secure:   true,
+						Path:     "/", /*Path should be modified into /username*/
+					}
+					//return response
+					http.SetCookie(w, &cookie)
+					resp.Username = user.Username
+					resp.Token = tokenString
+					json.NewEncoder(w).Encode(structs.ResponseSignIn(resp))
 				}
 			}
 		}
-
-		//Create JWT token
-		tokenString, err := jwt.GenerateToken(env, user.Username)
-		if err != nil {
-			http.Error(w, "Failed to generate token string.", http.StatusInternalServerError)
-			return
-		}
-		//Set token into cookie
-		cookie := http.Cookie{
-			Name:     "jwt_token",
-			Value:    tokenString,
-			Expires:  time.Now().Add(time.Hour * 24),
-			HttpOnly: true,
-			SameSite: http.SameSiteStrictMode,
-			Secure:   true,
-			Path:     "/", /*Path should be modified into /username*/
-		}
-		//return response
-		http.SetCookie(w, &cookie)
-		var resp structs.ResponseSignIn
-		resp.Username = user.Username
-		resp.Token = tokenString
-		json.NewEncoder(w).Encode(structs.ResponseSignIn(resp))
+		log.Println("Couldn't find such user.")
+		resp.Status = http.StatusBadRequest
+		resp.Username = ""
+		resp.Token = ""
+		json.NewEncoder(w).Encode(resp);
 	}
 }

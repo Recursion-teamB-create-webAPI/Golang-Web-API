@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Navigate, useLocation, useParams } from "react-router-dom";
 
 type Props = {
@@ -8,7 +8,6 @@ type Props = {
 const RouteAuthGuard = ({ component }: Props) => {
   const location = useLocation();
   const authUsername = sessionStorage.getItem("authUsername");
-  console.log("from>>", location.state.from);
   if (location.state?.from === "/signup") {
     return <>{component}</>;
   }
