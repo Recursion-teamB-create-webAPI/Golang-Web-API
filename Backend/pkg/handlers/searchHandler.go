@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/constants"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/dao"
@@ -25,7 +26,7 @@ func SearchHandler(env structs.Env, mydb *dao.Database) http.HandlerFunc {
 		var response structs.ResponseSearch
 		// クエリパラメータを解析する
 		query := r.URL.Query()
-		keyword := query.Get("keyword")
+		keyword := strings.ToLower(query.Get("keyword"))
 		fmt.Printf("Keyword: %v\n", keyword)
 
 		if keyword == "" {

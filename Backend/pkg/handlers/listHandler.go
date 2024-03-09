@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/constants"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/dao"
@@ -22,7 +23,7 @@ func ListHandler(mydb *dao.Database) http.HandlerFunc {
 		var response structs.ResponseList
 		// クエリパラメータを解析する
 		query := r.URL.Query()
-		keyword := query.Get("keyword")
+		keyword := strings.ToLower(query.Get("keyword"))
 
 		if keyword == "" {
 			response.List = mydb.ReadAllItem()

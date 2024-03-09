@@ -66,7 +66,10 @@ func (db *Database) Find(item string) (bool, structs.DatabaseImage) {
 	var imagesJSON string
 
 	for res.Next() {
-		res.Scan(&img.Id, &img.Item, &imagesJSON, &img.SearchCount, &img.CreatedAt, &img.UpdatedAt)
+		err = res.Scan(&img.Id, &img.Item, &imagesJSON, &img.SearchCount, &img.CreatedAt, &img.UpdatedAt)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 
 	err = json.Unmarshal([]byte(imagesJSON), &img.ImageData.Images)
@@ -87,7 +90,11 @@ func (db *Database) ReadAllItem() []string {
 
 	for res.Next() {
 		var item string
-		res.Scan(&item)
+		err = res.Scan(&item)
+		if err != nil {
+			log.Println(err)
+		}
+
 		items = append(items, item)
 	}
 	return items
@@ -104,7 +111,11 @@ func (db *Database) ReadPartialMatchItem(item string) (bool, []string) {
 
 	for res.Next() {
 		var item string
-		res.Scan(&item)
+		err = res.Scan(&item)
+		if err != nil {
+			log.Println(err)
+		}
+
 		items = append(items, item)
 	}
 	return items != nil, items
@@ -126,7 +137,10 @@ func (db *Database) ReadTotalResult(item string, queryArr structs.TotalResultQue
 		var searchCount int
 		var updatedAt string
 
-		res.Scan(&item, &searchCount, &updatedAt)
+		err = res.Scan(&item, &searchCount, &updatedAt)
+		if err != nil {
+			log.Println(err)
+		}
 
 		newTotalResult := structs.TotalResultItems{
 			Item:        item,

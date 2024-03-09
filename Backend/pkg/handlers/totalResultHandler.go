@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/constants"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/dao"
@@ -22,10 +23,10 @@ func TotalResultHandler(mydb *dao.Database) http.HandlerFunc {
 		var response structs.ResponseTotalResult
 		// クエリパラメータを解析する
 		query := r.URL.Query()
-		keyword := query.Get("keyword")
-		page := query.Get("page")
-		perPage := query.Get("perpage")
-		order := query.Get("order")
+		keyword := strings.ToLower(query.Get("keyword"))
+		page := strings.ToLower(query.Get("page"))
+		perPage := strings.ToLower(query.Get("perpage"))
+		order := strings.ToLower(query.Get("order"))
 
 		// クエリパラメータに適切な値がセットされているかのチェック
 		successCheck, queryArr := utils.QueryParameterCheck(page, perPage, order)
