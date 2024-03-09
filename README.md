@@ -151,13 +151,21 @@ curl https://pixfinder.aki158-website.blog/api/list?keyword=c
 レスポンス
 
 ```
-【ToDo】ここは、実装完了したら、書く予定
+{
+    "list":
+    [
+        "cat",
+        "coffee"
+    ],
+    "status":"success",
+    "cause":""
+}
 ```
 
 #### データの集計
 
 ```
-curl https://pixfinder.aki158-website.blog/api/total_result?keyword={検索ワード}&page={ページ番号}&perpage={ページ数}&order={searchCount または newest}
+curl https://pixfinder.aki158-website.blog/api/total_result?keyword={検索ワード}&page={ページ番号}&perpage={ページ数}&order={count または newest}
 ```
 
 ##### 使用例
@@ -165,13 +173,29 @@ curl https://pixfinder.aki158-website.blog/api/total_result?keyword={検索ワ�
 データベースに登録されているアイテム(cを文字列に含む)から検索数の多い順で上位5件を取得する
 
 ```
-curl https://pixfinder.aki158-website.blog/api/total_result?keyword=c&page=1&perpage=5&order=searchCount
+curl https://pixfinder.aki158-website.blog/api/total_result?keyword=c&page=1&perpage=5&order=count
 ```
 
 レスポンス
 
 ```
-【ToDo】ここは、実装完了したら、書く予定
+{
+    "totalResult":
+    [
+        {
+            "item":"cat",
+            "search_count":5,
+            "updated_at":"2024-03-09 14:12:50"
+        },
+        {
+            "item":"coffee",
+            "search_count":2,
+            "updated_at":"2024-03-09 14:13:38"
+        }
+    ],
+    "status":"success",
+    "cause":""
+}
 ```
 
 ##### その他の使用例
@@ -308,8 +332,8 @@ curl https://pixfinder.aki158-website.blog/api/total_result?keyword=bi&page=2&pe
 | ------- | ------- | ------- |
 | `/api/total_result` | 必須 | 対象のエンドポイント |
 | `keyword={検索ワード}` | 任意 | クエリパラメータの値で検索します。<br>データベースに検索ワードのアイテムが存在するか確認します。<br>・存在する場合は、データベースからデータを取得します。<br>・存在しない場合は、データが取得できません。<br>また、クエリパラメータを設定していない場合は、データベースに登録されている全てのアイテムがデータ取得の対象となります。 |
-| `page={ページ番号}` | 任意 | 取得する結果のページ番号です。<br>クエリパラメータを設定していない場合は、先頭のページを取得します。 |
-| `perpage={ページ数}` | 任意 | 1ページあたりに表示するアイテムの数です。<br>クエリパラメータを設定していない場合は、1ページあたり5件で表示します。 |
+| `page={ページ番号}` | 任意 | 取得する結果のページ番号です。<br>指定できるページ番号は、1〜10になります。<br>クエリパラメータを設定していない場合は、1ページ目を取得します。 |
+| `perpage={ページ数}` | 任意 | 1ページあたりに表示するアイテムの数です。<br>指定できるページ番号は、1〜10になります。<br>クエリパラメータを設定していない場合は、1ページあたり5件で表示します。 |
 | `order={count または newest}` | 任意 | クエリパラメータの値で表示する順番が変化します。<br>・`count` : 検索件数の多い順で表示します。<br>・`newest` : 検索が新しい順で表示します。<br>クエリパラメータを設定していない または 上記の文字列以外をクエリパラメータの値として設定している場合は、`count`が設定されます。 |
 
 #### エラーハンドリング
@@ -360,7 +384,7 @@ curl https://pixfinder.aki158-website.blog/api/total_result?keyword=bi&page=2&pe
 
 #### データの集計
 
-![image](https://github.com/Recursion-teamB-create-webAPI/Golang-Web-API/assets/119317071/843dc59a-73bc-49d8-9544-3d7a15d1de63)
+![image](https://github.com/Recursion-teamB-create-webAPI/Golang-Web-API/assets/119317071/683495e0-67e7-46f6-9aec-cbf46df1b54a)
 
 ### データアクセス層
 
