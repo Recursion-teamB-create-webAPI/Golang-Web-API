@@ -1,12 +1,13 @@
-import { ReactNode } from 'react'
-import Header from './Header'
-import Footer from './Footer'
+import { ReactNode } from "react";
+import Header from "./Header";
+import { useLocation } from "react-router-dom";
 
 type Props = {
-  children: ReactNode
-}
+  children: ReactNode;
+};
 
 const Layout = ({ children }: Props) => {
+  const location = useLocation();
   return (
     <>
       <div
@@ -26,11 +27,12 @@ const Layout = ({ children }: Props) => {
           -z-50
           "
       />
-      <Header />
+      {location &&
+        location.pathname !== "/signin" &&
+        location.pathname != "/signup" && <Header />}
       {children}
-      {/* <Footer /> */}
     </>
-  )
-}
+  );
+};
 
-export default Layout
+export default Layout;
