@@ -76,6 +76,40 @@ func (db *Database) Find(img structs.DatabaseImage, item string) (bool, structs.
 	return item == img.Item, img
 }
 
+func (db *Database) ReadAllItem() []string {
+	var items []string
+
+	query := `SELECT item FROM Images;`
+	res, err := db.UseDb.Query(query)
+	if err != nil {
+		log.Println(err)
+	}
+
+	for res.Next() {
+		var item string
+		res.Scan(&item)
+		items = append(items, item)
+	}
+	return items
+}
+
+func (db *Database) ReadPartialMatchItem(item string) (bool, []string) {
+	var items []string
+
+	query := `SELECT item FROM Images WHERE item LIKE ?;`
+	res, err := db.UseDb.Query(query, "%"+item+"%")
+	if err != nil {
+		log.Println(err)
+	}
+
+	for res.Next() {
+		var item string
+		res.Scan(&item)
+		items = append(items, item)
+	}
+	return items != nil, items
+}
+
 func (db *Database) Insert(item string, images [constants.SearchResultNumber]string, searchCount int) {
 	// images配列をJSON文字列にエンコード
 	imagesJSON, err := json.Marshal(images)

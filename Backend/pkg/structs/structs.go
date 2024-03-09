@@ -13,10 +13,6 @@ type Env struct {
 	MysqlUri       string
 }
 
-type ImageArray struct {
-	Images [constants.SearchResultNumber]string `json:"images"`
-}
-
 type ResponseSearch struct {
 	ImageData ImageArray `json:"imageData"`
 	Status    string     `json:"status"`
@@ -29,8 +25,18 @@ type ResponseDescription struct {
 	Cause       string        `json:"cause"`
 }
 
+type ResponseList struct {
+	List   []string `json:"list"`
+	Status string   `json:"status"`
+	Cause  string   `json:"cause"`
+}
+
 type InitImageItems struct {
 	ImageItems []Items `json:"ImageItems"`
+}
+
+type ImageArray struct {
+	Images [constants.SearchResultNumber]string `json:"images"`
 }
 
 type Items struct {
