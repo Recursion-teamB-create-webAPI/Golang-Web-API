@@ -24,7 +24,7 @@ const SearchBar = () => {
     []
   );
 
-  const handleSearch = async () => {
+  const handleSearch = () => {
     if (searchString === "") return;
     getSearchResultState({ keyword: searchString });
   };

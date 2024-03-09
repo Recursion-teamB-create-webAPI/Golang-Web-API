@@ -6,9 +6,10 @@ import {
   Image,
   VStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import { useSearchResultState } from "../store/SearchResultStore";
 
 type Props = {
   imageURL: string;
@@ -17,12 +18,15 @@ type Props = {
 
 const SearchResultCard = ({ imageURL, totalResults }: Props) => {
   const [currentImage, setCurrentImage] = useState(imageURL);
+  const [results, setResults] = useState<string[]>([]);
   const navigate = useNavigate();
   const { username } = useParams();
+  const [searchResults] = useSearchResultState((state) => [
+    state.searchResults,
+  ]);
+
   const handleDescription = () => {
-    /*Go to each description page, but i don't know how rich information I can get by custom search json api.*/
     const descriptionURL = uuidv4();
-    console.log(descriptionURL);
     navigate(`/${username}/description/${descriptionURL}`, {
       state: {
         imageURL: imageURL,
@@ -31,20 +35,23 @@ const SearchResultCard = ({ imageURL, totalResults }: Props) => {
   };
 
   const handleGoPrevious = () => {
-    const currentIndex = totalResults.indexOf(currentImage);
-    const nextIndex =
-      (currentIndex - 1 + totalResults.length) % totalResults.length;
+    const currentIndex = results.indexOf(currentImage);
+    const nextIndex = (currentIndex - 1 + results.length) % results.length;
     const nextImage = totalResults[nextIndex];
     setCurrentImage(nextImage);
   };
 
   const handleGoNext = () => {
-    const currentIndex = totalResults.indexOf(currentImage);
-    const nextIndex =
-      (currentIndex + 1 + totalResults.length) % totalResults.length;
-    const nextImage = totalResults[nextIndex];
+    const currentIndex = results.indexOf(currentImage);
+    const nextIndex = (currentIndex + 1 + results.length) % results.length;
+    const nextImage = results[nextIndex];
     setCurrentImage(nextImage);
   };
+
+  useEffect(() => {
+    setResults(totalResults);
+    setCurrentImage(totalResults[0]);
+  }, [searchResults]);
 
   return (
     <>

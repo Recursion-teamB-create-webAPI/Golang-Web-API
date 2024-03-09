@@ -9,14 +9,11 @@ const Home = () => {
     (state) => [state.searchResults, state.getSearchResultState]
   );
 
-  const [searchString, setSearchString] = useSearchState((state) => [
-    state.searchString,
-    state.setSearchString,
-  ]);
+  const [searchString] = useSearchState((state) => [state.searchString]);
 
   useEffect(() => {
-    console.log("HERE");
-  }, [searchResults]);
+    getSearchResultState({ keyword: searchString });
+  }, []);
 
   return (
     <>
