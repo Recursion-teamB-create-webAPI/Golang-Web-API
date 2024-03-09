@@ -16,7 +16,6 @@ import (
 func DescriptionHandler(mydb *dao.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var response structs.ResponseDescription
-		// クエリパラメータを解析する
 		query := r.URL.Query()
 		keyword := query.Get("keyword")
 
@@ -28,7 +27,6 @@ func DescriptionHandler(mydb *dao.Database) http.HandlerFunc {
 		} else {
 			var img structs.DatabaseImage
 			success, img := mydb.Find(keyword)
-			// keywordがデータベースに存在するかチェックする
 			if success {
 				response.Description = img
 				response.Status = "success"

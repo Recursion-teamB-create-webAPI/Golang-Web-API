@@ -7,7 +7,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 
 type Props = {
@@ -18,11 +18,12 @@ type Props = {
 const SearchResultCard = ({ imageURL, totalResults }: Props) => {
   const [currentImage, setCurrentImage] = useState(imageURL);
   const navigate = useNavigate();
+  const { username } = useParams();
   const handleDescription = () => {
     /*Go to each description page, but i don't know how rich information I can get by custom search json api.*/
     const descriptionURL = uuidv4();
     console.log(descriptionURL);
-    navigate(`/description/${descriptionURL}`, {
+    navigate(`/${username}/description/${descriptionURL}`, {
       state: {
         imageURL: imageURL,
       },

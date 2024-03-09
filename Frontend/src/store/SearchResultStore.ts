@@ -12,6 +12,7 @@ export const useSearchResultState = create<SearchResultState>((set) => ({
   getSearchResultState: async (params: SearchParams) => {
     if (params.keyword === "") {
       set({ searchResults: [] });
+      return;
     }
     const { data } = await axios.get("/api/search", { params });
     set({ searchResults: data.imageData.images });

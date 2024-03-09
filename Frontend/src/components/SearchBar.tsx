@@ -67,7 +67,7 @@ const SearchBar = () => {
             as={Button}
             ml={4}
             p={4}
-            color="black" // テキストの色を設定
+            color="black"
             fontWeight={"bold"}
           >
             検索候補の表示

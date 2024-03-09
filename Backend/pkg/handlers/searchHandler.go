@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -25,6 +26,7 @@ func SearchHandler(env structs.Env, mydb *dao.Database) http.HandlerFunc {
 		// クエリパラメータを解析する
 		query := r.URL.Query()
 		keyword := query.Get("keyword")
+		fmt.Printf("Keyword: %v\n", keyword)
 
 		if keyword == "" {
 			nke := utilError.NewNoKeywordError()
@@ -32,7 +34,6 @@ func SearchHandler(env structs.Env, mydb *dao.Database) http.HandlerFunc {
 			response.Status = "failed"
 			response.Cause = constants.ErrMessageQuery
 		} else {
-			// keywordがデータベースに存在するかチェックする
 			success, img := mydb.Find(keyword)
 
 			if success {
@@ -56,10 +57,7 @@ func SearchHandler(env structs.Env, mydb *dao.Database) http.HandlerFunc {
 				}
 			}
 		}
-		// Content-Typeヘッダーをapplication/jsonに設定
 		w.Header().Set("Content-Type", "application/json")
-
-		// マップをJSONにエンコードしてレスポンスとして送信
 		json.NewEncoder(w).Encode(response)
 	}
 }

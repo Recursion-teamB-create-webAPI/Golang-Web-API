@@ -1,9 +1,22 @@
 import { useSearchResultState } from "../store/SearchResultStore";
 import SearchBar from "./SearchBar";
 import SearchResultCard from "./SearchResultCard";
+import { useSearchState } from "../store/SearchStore";
+import { useEffect } from "react";
 
 const Home = () => {
-  const searchResults = useSearchResultState((state) => state.searchResults);
+  const [searchResults, getSearchResultState] = useSearchResultState(
+    (state) => [state.searchResults, state.getSearchResultState]
+  );
+
+  const [searchString, setSearchString] = useSearchState((state) => [
+    state.searchString,
+    state.setSearchString,
+  ]);
+
+  useEffect(() => {
+    console.log("HERE");
+  }, [searchResults]);
 
   return (
     <>
