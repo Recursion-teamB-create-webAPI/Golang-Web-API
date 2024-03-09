@@ -103,7 +103,7 @@ func GetWalkTargetPath(targetFile string, beforeLevel int) string {
 	// カレントディレクトリを示す絶対パスを取得する
 	currDir, err := os.Getwd()
 	if err != nil {
-		log.Println("Error getting current directory:", err)
+		log.Println(err)
 	}
 
 	rootPath := currDir
