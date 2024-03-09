@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/dao"
+	dbError "github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/errors/db"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/structs"
 )
 
@@ -35,6 +36,8 @@ func SignUpHandler(env structs.Env, db *dao.Database) http.HandlerFunc {
 		var user structs.User
 		err := json.NewDecoder(r.Body).Decode(&user)
 		if err != nil {
+			me := dbError.NewMapToStructError(user)
+			log.Println(me.Error())
 			resp.Status = http.StatusInternalServerError
 			resp.Id = -1
 			resp.Username = ""
@@ -44,7 +47,6 @@ func SignUpHandler(env structs.Env, db *dao.Database) http.HandlerFunc {
 
 		err = dao.CreateUsersTable(db.UseDb)
 		if err != nil {
-			log.Println("Failed to create Users table.")
 			resp.Status = http.StatusInternalServerError
 			resp.Id = -1
 			resp.Username = ""
@@ -54,7 +56,8 @@ func SignUpHandler(env structs.Env, db *dao.Database) http.HandlerFunc {
 
 		err = dao.InsertUser(db.UseDb, user.Username, user.Password)
 		if err != nil {
-			log.Println("Failed to insert user into Users table.")
+			ie := dbError.NewInsertUserError(user.Username)
+			log.Println(ie.Error())
 			resp.Status = http.StatusBadRequest
 			resp.Id = -1
 			resp.Username = ""

@@ -34,6 +34,7 @@ type ResponseSignIn struct {
 	Username string `json:"username"`
 	Token string `json:"token"`
 	Status int `json:"status"`
+	Error string `json:"error"`
 }
 
 type ResponseDescription struct {

@@ -3,6 +3,13 @@ import { jwtDecode } from "jwt-decode";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+type Props = {
+  username: string;
+  token: string;
+  status: number;
+  error: string;
+};
+
 const SignIn = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -15,16 +22,21 @@ const SignIn = () => {
       alert("ユーザー名とパスワードを入力してください");
       return;
     }
-    const { data } = await axios.post("/api/signin", {
+    const resp = await axios.post("/api/signin", {
       username: username,
       password: password,
     });
+
+    const data: Props = resp.data;
     if (data.status === HttpStatusCode.Ok) {
       const jwtToken: JwtPayload = jwtDecode(data.token);
       sessionStorage.setItem("authUsername", jwtToken.username);
       navigate(`/${jwtToken.username}`);
+    } else if (data.error.toLowerCase().includes("password")) {
+      alert("パスワードが違います。");
+      return;
     } else {
-      alert("そのようなユーザは存在しません");
+      alert("そのようなユーザは存在しません。");
       return;
     }
   };

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	dbError "github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/errors/db"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -18,8 +19,9 @@ func CreateUsersTable(db *sql.DB) error {
     `
 	_, err := db.Exec(query)
 	if err != nil {
-		log.Println("Failed to create Users Table")
-		return err
+		ce := dbError.NewCreateTableError("Users", query)
+		log.Println(ce.Error())
+		return ce 
 	}
 	fmt.Println("Success to create Users Table")
 	return nil
@@ -30,7 +32,6 @@ func InsertUser(db *sql.DB, username string, rawPassword string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Hashed Password: %v\n", hashedPassword)
 	/* If we have that same user (same username and password), we should return error */
 	err = SearchUser(db, username, rawPassword)
 	if err != nil {
@@ -43,8 +44,9 @@ func InsertUser(db *sql.DB, username string, rawPassword string) error {
 	password := hashedPassword
 	_, err = db.Exec(query, username, password)
 	if err != nil {
-		log.Printf("Failed to insert new user into Users table.: %v\n", err.Error())
-		return err
+		ie := dbError.NewInsertUserError(username)
+		log.Println(ie.Error())
+		return ie 
 	}
 	return nil
 }
@@ -55,8 +57,9 @@ func SearchUser(db *sql.DB, username string, rawPassword string) error {
 	`
 	rows, err := db.Query(query)
 	if err != nil {
-		log.Printf("Failed to exec search user query: %v\n", err.Error())
-		return err
+		ee := dbError.NewDbQueryError(query)
+		log.Println(ee.Error())
+		return ee 
 	}
 	defer rows.Close()
 
@@ -65,7 +68,7 @@ func SearchUser(db *sql.DB, username string, rawPassword string) error {
 		return err
 	}
 	if alreadyExists {
-		return NewHaveAlreadyUserError(username)
+		return dbError.NewUserAlreadyExistsError(username)
 	}
 
 	return nil
@@ -78,12 +81,10 @@ func JudgeUserAlreadyExists(rows *sql.Rows, username string) (bool, error) {
 
 		err := rows.Scan(&u, &p)
 		if err != nil {
-			log.Printf("Failed to scan db row: %v\n", err.Error())
-			return false, err
+			de := dbError.NewDbRowScanError("Users")
+			log.Println(de.Error())
+			return false, de 
 		}
-		//logging
-		fmt.Printf("Username: %v\n", u)
-		fmt.Printf("Password: %v\n", p)
 
 		if u == username {
 			return true, nil
@@ -95,23 +96,9 @@ func JudgeUserAlreadyExists(rows *sql.Rows, username string) (bool, error) {
 func encryptPassword(rawPassword string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(rawPassword), bcrypt.DefaultCost)
 	if err != nil {
-		log.Printf("Failed to hash password: %v\n", err.Error())
-		return "Failed to hash password", err
+		ee := dbError.NewEncryptPasswordError();
+		log.Printf("Failed to hash password: %v\n", ee.Error())
+		return "Failed to hash password", ee
 	}
 	return string(hashedPassword), nil
-}
-
-// After merege, go to errors.go
-type HaveAlreadyUserError struct {
-	username string
-}
-
-func (e *HaveAlreadyUserError) Error() string {
-	return fmt.Sprintf("You have already registered. Username: %v\n", e.username)
-}
-
-func NewHaveAlreadyUserError(username string) *HaveAlreadyUserError {
-	return &HaveAlreadyUserError{
-		username: username,
-	}
 }

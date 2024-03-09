@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/dao"
+	dbError "github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/errors/db"
+	utilError "github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/errors/util"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/jwt"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/structs"
 	"golang.org/x/crypto/bcrypt"
@@ -28,9 +30,11 @@ func SignInHandler(env structs.Env, db *dao.Database) http.HandlerFunc {
 		}
 
 		if r.Method != http.MethodPost {
+			he := utilError.NewHTTPMethodNotAllowedError(r.Method)
 			resp.Status = http.StatusMethodNotAllowed
 			resp.Username = ""
 			resp.Token = ""
+			resp.Error = he.Error()
 			json.NewEncoder(w).Encode(resp);
 			return
 		}
@@ -39,9 +43,12 @@ func SignInHandler(env structs.Env, db *dao.Database) http.HandlerFunc {
 		err := json.NewDecoder(r.Body).Decode(&user)
 
 		if err != nil {
+			me := dbError.NewMapToStructError(user)
+			log.Println(me.Error())
 			resp.Status = http.StatusBadRequest
 			resp.Username = ""
 			resp.Token = ""
+			resp.Error = me.Error()
 			json.NewEncoder(w).Encode(resp);
 			return
 		}
@@ -49,10 +56,12 @@ func SignInHandler(env structs.Env, db *dao.Database) http.HandlerFunc {
 		query := `SELECT username, password FROM Users`
 		rows, err := db.UseDb.Query(query)
 		if err != nil {
-			log.Printf("Failed to exec db query: %v\n", query)
+			qe := dbError.NewDbQueryError(query)
+			log.Println(qe.Error())
 			resp.Status = http.StatusInternalServerError
 			resp.Username = ""
 			resp.Token = ""
+			resp.Error = qe.Error()
 			json.NewEncoder(w).Encode(resp);
 			return
 		}
@@ -65,10 +74,12 @@ func SignInHandler(env structs.Env, db *dao.Database) http.HandlerFunc {
 
 			err := rows.Scan(&u, &p)
 			if err != nil {
-				log.Printf("Failed to scan db row: %v\n", err.Error())
+				se := dbError.NewDbRowScanError("Users");
+				log.Println(se.Error())
 				resp.Status = http.StatusInternalServerError
 				resp.Username = ""
 				resp.Token = ""
+				resp.Error = se.Error()
 				json.NewEncoder(w).Encode(resp);
 				return
 			}
@@ -76,19 +87,24 @@ func SignInHandler(env structs.Env, db *dao.Database) http.HandlerFunc {
 			if u == user.Username {
 				err = bcrypt.CompareHashAndPassword([]byte(p), []byte(user.Password))
 				if err != nil {
-					log.Println("Password does not match")
+					pe := dbError.NewPasswordDoesNotMatchError();
+					log.Println(pe.Error())
 					resp.Status = http.StatusBadRequest
 					resp.Username = ""
 					resp.Token = ""
+					resp.Error = pe.Error() 
 					json.NewEncoder(w).Encode(resp);
 					return
 				} else {
 					//Create JWT token
 					tokenString, err := jwt.GenerateToken(env, user.Username)
 					if err != nil {
+						ge := dbError.NewGenerateJwtTokenError()
+						log.Println(ge.Error())
 						resp.Status = http.StatusBadRequest
 						resp.Username = ""
 						resp.Token = ""
+						resp.Error = ge.Error()
 						json.NewEncoder(w).Encode(resp);
 						return
 					}
@@ -107,15 +123,17 @@ func SignInHandler(env structs.Env, db *dao.Database) http.HandlerFunc {
 					resp.Status = http.StatusOK
 					resp.Username = user.Username
 					resp.Token = tokenString
+					resp.Error = ""
 					json.NewEncoder(w).Encode(structs.ResponseSignIn(resp))
 					return
 				}
 			}
 		}
-		log.Println("Couldn't find such user.")
+		log.Println(dbError.NewFindUserError(resp.Username).Error())
 		resp.Status = http.StatusBadRequest
 		resp.Username = ""
 		resp.Token = ""
+		resp.Error = dbError.NewFindUserError(resp.Username).Error()
 		json.NewEncoder(w).Encode(resp);
 	}
 }
