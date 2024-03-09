@@ -9,6 +9,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/constants"
+	testErros "github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/errors/test"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/structs"
 	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/utils"
 	_ "github.com/go-sql-driver/mysql"
@@ -83,7 +84,9 @@ func TestDatabase_Connect(t *testing.T) {
 func TestDatabase_CreateTable(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
-		log.Println("failed to init db mock")
+		ie := testErros.NewInitMockDbError()
+		log.Println(ie.Error())
+		return
 	}
 	defer db.Close()
 
