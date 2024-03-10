@@ -1,34 +1,55 @@
 package main
 
 import (
-    "encoding/json"
-    "net/http"
-    "fmt"
+	"log"
+	"net/http"
+
+	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/constants"
+	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/dao"
+	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/handlers"
+	"github.com/Recursion-teamB-create-webAPI/Golang-Web-API.git/pkg/utils"
+	_ "github.com/go-sql-driver/mysql"
 )
 
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-    // クエリパラメータを解析する
-    query := r.URL.Query()
-    name := query.Get("name") // "名前"から"name"へ修正
-
-    // レスポンス用のマップを作成
-    response := map[string]string{
-        "message": "Hello " + name, // “message”： "Hello " + name、から修正
-    }
-
-    // Content-Typeヘッダーをapplication/jsonに設定
-    w.Header().Set("Content-Type", "application/json")
-
-    // マップをJSONにエンコードしてレスポンスとして送信
-    json.NewEncoder(w).Encode(response)
-}
-
 func main() {
-    fmt.Println("Starting the server!")
-    
-    // ルートとハンドラ関数を定義
-    http.HandleFunc("/api/hello", helloHandler)
+	// .envから値を取得する
+	env := utils.GetEnvData(constants.BeforeLevel1)
 
-    // 8000番ポートでサーバを開始
-    http.ListenAndServe(":8000", nil)
+	// MySQLに接続する
+	mydb := &dao.Database{}
+	mydb.Connect(env)
+	defer mydb.UseDb.Close()
+
+	// 接続確認
+	err := mydb.UseDb.Ping()
+	if err != nil {
+		log.Println("Database connection failed")
+	} else {
+		log.Println("Database connection successful")
+	}
+
+	mydb.CreateTable()
+
+	// 初期データ投入
+	mydb.InsertInitData(constants.BeforeLevel0)
+
+	log.Println("Starting the server!")
+
+	http.Handle("/api/search", http.HandlerFunc(handlers.SearchHandler(env, mydb)))
+
+	http.Handle("/api/description", http.HandlerFunc(handlers.DescriptionHandler(mydb)))
+
+	http.Handle("/api/signup", http.HandlerFunc(handlers.SignUpHandler(env, mydb)))
+
+	http.Handle("/api/signin", http.HandlerFunc(handlers.SignInHandler(env, mydb)))
+
+	http.Handle("/api/signout", http.HandlerFunc(handlers.SignOutHandler(env, mydb)))
+
+	http.Handle("/api/list", http.HandlerFunc(handlers.ListHandler(mydb)))
+
+	http.Handle("/api/total_result", http.HandlerFunc(handlers.TotalResultHandler(mydb)))
+
+	// 8000番ポートでサーバを開始
+	http.ListenAndServe(env.PortNumber, nil)
+
 }
