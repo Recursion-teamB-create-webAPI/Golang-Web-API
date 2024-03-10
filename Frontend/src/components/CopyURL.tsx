@@ -1,11 +1,4 @@
-import {
-  Button,
-  VStack,
-  HStack,
-  useClipboard,
-  Text,
-  Textarea,
-} from "@chakra-ui/react";
+import { VStack, useClipboard } from "@chakra-ui/react";
 import { useEffect } from "react";
 
 type Props = {

@@ -2,7 +2,7 @@ import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { useSearchResultState } from "../store/SearchResultStore";
 import { useSearchState } from "../store/SearchStore";
 import { Button, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import axios from "axios";
 
 type SearchCandidate = {
@@ -30,7 +30,7 @@ const SearchBar = () => {
     handleSearchCandidate();
   };
 
-  const handleSearchString = (e) => {
+  const handleSearchString = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchString(e.target.value);
   };
 

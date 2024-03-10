@@ -1,11 +1,11 @@
-import { Image, Text, VStack } from "@chakra-ui/react";
+import { Image } from "@chakra-ui/react";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import CopyURL from "./CopyURL";
 
 const Description = () => {
   const location = useLocation();
-  const [imageURL, setImageURL] = useState<string>(location.state.imageURL);
+  const [imageURL, _] = useState<string>(location.state.imageURL);
 
   return (
     <div>
