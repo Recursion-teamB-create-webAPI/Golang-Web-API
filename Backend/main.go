@@ -28,7 +28,6 @@ func main() {
 		log.Println("Database connection successful")
 	}
 
-	// テーブルの作成
 	mydb.CreateTable()
 
 	// 初期データ投入
@@ -36,10 +35,15 @@ func main() {
 
 	log.Println("Starting the server!")
 
-	// 各エンドポイントにアクセスされたら呼び出す
 	http.Handle("/api/search", http.HandlerFunc(handlers.SearchHandler(env, mydb)))
 
 	http.Handle("/api/description", http.HandlerFunc(handlers.DescriptionHandler(mydb)))
+
+	http.Handle("/api/signup", http.HandlerFunc(handlers.SignUpHandler(env, mydb)))
+
+	http.Handle("/api/signin", http.HandlerFunc(handlers.SignInHandler(env, mydb)))
+
+	http.Handle("/api/signout", http.HandlerFunc(handlers.SignOutHandler(env, mydb)))
 
 	http.Handle("/api/list", http.HandlerFunc(handlers.ListHandler(mydb)))
 

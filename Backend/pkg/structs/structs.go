@@ -11,12 +11,26 @@ type Env struct {
 	PortNumber     string
 	DatabaseName   string
 	MysqlUri       string
+	JwtSecretKey   string
 }
 
 type ResponseSearch struct {
 	ImageData ImageArray `json:"imageData"`
 	Status    string     `json:"status"`
 	Cause     string     `json:"cause"`
+}
+
+type ResponseSignUp struct {
+	Id       int    `json:"id"`
+	Username string `json:"username"`
+  	Status int `json:"status"`
+}
+
+type ResponseSignIn struct {
+	Username string `json:"username"`
+	Token string `json:"token"`
+	Status int `json:"status"`
+	Error string `json:"error"`
 }
 
 type ResponseDescription struct {
@@ -69,4 +83,9 @@ type DatabaseImage struct {
 	SearchCount int        `json:"search_count"`
 	CreatedAt   string     `json:"created_at"`
 	UpdatedAt   string     `json:"updated_at"`
+}
+
+type User struct {
+	Username string
+	Password string
 }

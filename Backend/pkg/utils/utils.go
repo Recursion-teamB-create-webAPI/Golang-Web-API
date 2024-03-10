@@ -36,6 +36,7 @@ func GetEnvData(beforeLevel int) structs.Env {
 		PortNumber:     os.Getenv("PORT_NUMBER"),
 		MysqlUri:       os.Getenv("MYSQL_URI"),
 		DatabaseName:   os.Getenv("DATABASE_NAME"),
+		JwtSecretKey:   os.Getenv("JWT_SECRET_KEY"),
 	}
 }
 
